@@ -1,0 +1,134 @@
+.search-block
+  margin-bottom 20px !important
+  width 100%
+  overflow hidden
+
+.search-block__wrapper
+  width 100%
+  height 40px
+  position relative
+
+.search-block__input
+  position relative
+  box-sizing border-box
+  font-size 14px
+  display inline-block
+  border 0
+  box-shadow inset 0 0 0 1px #FFFFFF
+  background #FFFFFF
+  padding 0
+  padding-right 25px
+  padding-left 12px
+  border-radius 4px
+  border 1px solid main-blue
+  width 100%
+  height 100%
+  vertical-align middle
+  white-space normal
+  -webkit-appearance none
+  -moz-appearance none
+  appearance none
+
+.highlight
+  background-color rgba(hightlight-color, 1)
+
+.search-block__input::-webkit-search-decoration, .search-block__input::-webkit-search-cancel-button, .search-block__input::-webkit-search-results-button, .search-block__input::-webkit-search-results-decoration
+  display none
+
+.search-block__input:hover
+  box-shadow inset 0 0 0 1px rgba(main-blue, 0.3)
+
+.search-block__input
+  &:focus, &:active
+    outline 0
+    background #FFFFFF
+
+  &::-ms-clear, &::-ms-reveal
+    display none
+    width 0
+    height 0
+
+  &::-webkit-input-placeholder, &::-moz-placeholder, &::-ms-input-placeholder, &::placeholder
+    color #AAAAAA
+
+.list
+  width 327px
+  max-height 70%
+  // max-height 260px
+  // height 70%
+  padding 0
+  margin 0
+  position absolute
+  top 60px
+  z-index 99
+  overflow-y scroll
+  border-radius 4px
+  border-top-left-radius 0px
+  border-top-right-radius 0px
+  border 1px solid main-blue
+  border-top-width 0px
+  background-color #fff
+  overflow -moz-scrollbars-none
+  -ms-overflow-style none
+
+  &::-webkit-scrollbar
+    width 0px !important
+
+  &__search-item
+    padding 8px 0
+    list-style none
+
+    &:first-child
+      margin-top 8px
+
+    &:last-child
+      margin-bottom 8px
+
+    &:hover
+      background-color #eee
+      cursor pointer
+
+    p
+      margin 0 15px
+      font-size 14px
+      font-family 'RobotoRegular'
+      line-height 20px
+
+    &.selected
+      background-color rgba(main-blue, 0.3)
+
+.search-block__reset
+  outline none
+  display block
+  font-size 23px
+  position absolute
+  top 8px
+  right 8px
+  margin 0
+  border 0
+  background none
+  cursor pointer
+  padding 0
+  z-index 99
+  -webkit-user-select none
+  -moz-user-select none
+  -ms-user-select none
+  user-select none
+
+.search-block__input:valid ~ .search-block__reset
+  display block
+  -webkit-animation-name reset-in
+  animation-name reset-in
+  -webkit-animation-duration 0.15s
+  animation-duration 0.15s
+
+@keyframes reset-in
+  0%
+    -webkit-transform translate3d(-20%, 0, 0)
+    transform translate3d(-20%, 0, 0)
+    opacity 0
+
+  100%
+    -webkit-transform none
+    transform none
+    opacity 1
