@@ -5,12 +5,12 @@ cache:
     - node_modules/
 
 before_script:
-  - test -e package.json && npm install
+  - npm install -g @vue/cli@latest
+  - npm install --progress=false
 
 pages:
   stage: deploy
   script:
-    - npm ci
     - npm run build
     - mv public public-vue
     - mv dist public
