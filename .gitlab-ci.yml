@@ -1,0 +1,22 @@
+image: node:latest
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+  - test -e package.json && npm install
+
+pages:
+  stage: deploy
+  script:
+    - npm ci
+    - npm run build
+    - mv public public-vue
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hrs
+  only:
+    - master
