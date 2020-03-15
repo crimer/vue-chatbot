@@ -10,26 +10,28 @@
         v-model="query"
         @keydown.up="up"
         @keydown.down="down"
-        @focus="showList=true"/>
+        @focus="showList = true"
+      />
       <button
         type="reset"
         class="search-block__reset"
         @click="closeList"
-        v-show="searchQuery !== ''">
+        v-show="searchQuery !== ''"
+      >
         &times;
       </button>
     </div>
     <ul class="list" role="listbox" ref="questionsList" v-show="showList">
       <!-- <virtual-list :size="200" :remain="8"> -->
-        <li
-          v-for="(question) in searchedQuestion"
-          :key="question.id"
-          role="option"
-          class="list__search-item"
-          :class="{ selected: selectedId === question.id }"
-          @click="itemClick(question.id)">
-          <p v-html="highlightKeyword(question.body)"></p>
-        </li>
+      <li
+        v-for="question in searchedQuestion"
+        :key="question.id"
+        role="option"
+        class="list__search-item"
+        :class="{ selected: selectedId === question.id }"
+        @click="itemClick(question.id)">
+        <p v-html="highlightKeyword(question.body)"></p>
+      </li>
       <!-- </virtual-list> -->
     </ul>
   </div>
@@ -47,12 +49,12 @@ export default {
       itemHeight: 80,
       selectedItem: null,
       selectedId: null,
-      showList: false,
+      showList: false
     };
   },
   computed: {
     ...mapState(["searchQuery", "dialog"]),
-    ...mapGetters(["searchedQuestion","getSearchQuestionById"]),
+    ...mapGetters(["searchedQuestion", "getSearchQuestionById"]),
     query: {
       set(val) {
         return this.setSearchQuery(val);
@@ -64,7 +66,7 @@ export default {
   },
   methods: {
     ...mapMutations(["CLEAR_QUERY"]),
-    closeList(){
+    closeList() {
       this.CLEAR_QUERY();
       this.showList = false;
     },
@@ -72,13 +74,15 @@ export default {
     ...mapActions(["setSearchQuery"]),
     // TODO: переделать родсветку (иногда не подсвечивает)
     highlightKeyword(str) {
+      // если есть текст и запрос
       if (str && this.searchQuery) {
         var highlight = this.searchQuery.toLowerCase();
-        // str = " " + str;
-        return str.toLowerCase().replace(
-          new RegExp("(.)(" + highlight + ")(.)", "ig"),
-          '$1<span class="highlight">$2</span class="highlight">$3'
-        );
+        return str
+          .toLowerCase()
+          .replace(
+            new RegExp(highlight, "ig"),
+            '<span class="highlight">$&</span class="highlight">'
+          );
       } else {
         return str;
       }
