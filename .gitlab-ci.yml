@@ -5,7 +5,6 @@ cache:
     - node_modules/
 
 before_script:
-  - npm install -g @vue/cli@latest
   - npm install --progress=false
 
 pages:
