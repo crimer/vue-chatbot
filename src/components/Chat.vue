@@ -11,7 +11,8 @@
           y="0px"
           viewBox="0 0 188.148 188.148"
           style="enable-background:new 0 0 188.148 188.148;"
-          xml:space="preserve">
+          xml:space="preserve"
+        >
           <g>
             <g>
               <defs>
@@ -235,117 +236,15 @@
       <p class="chat-bot__header__title">ВГУЭС Бот</p>
     </div>
     <div class="chat-bot__chat">
-      <Search/>
-      <div class="chat-bot__dialog">
-        <ul class="chat-bot__body">
-          <!-- bot -->
-          <li class="block-message block-bot-message">
-            <p class="block-message__text">
-              Здравствуйте, чем мы можем вам помочь?
-            </p>
-            <ul class="block-message__answers">
-              <li class="block-message__answer disabled">
-                <a href="#">
-                  Вопросы по поступлению
-                </a>
-              </li>
-            </ul>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-            </div>
-          </li>
-          <!-- user -->
-          <li class="block-message block-you-message">
-            <p class="block-message__text">Вопросы по поступлению</p>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-              <a class="block-message__back">Назад</a>
-            </div>
-          </li>
-          <!-- bot -->
-          <li class="block-message block-bot-message">
-            <p class="block-message__text">
-              Здравствуйте, чем мы можем вам помочь?
-            </p>
-            <ol class="block-message__answers">
-              <li class="block-message__answer">
-                <a href="#">
-                  Вопросы по поступлению
-                </a>
-              </li>
-            </ol>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-            </div>
-          </li>
-          <!-- user -->
-          <li class="block-message block-you-message">
-            <p class="block-message__text">Вопросы по поступлению</p>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-              <a class="block-message__back">Назад</a>
-            </div>
-          </li>
-          <!-- bot -->
-          <li class="block-message block-bot-message">
-            <p class="block-message__text">Что вас интересует?</p>
-            <ol class="block-message__answers">
-              <li class="block-message__answer">
-                <a href="#">
-                  Какие сроки приема документов для поступления?
-                </a>
-              </li>
-              <li class="block-message__answer">
-                <a href="#">
-                  Какой распорядок работы приёмной комиссии?
-                </a>
-              </li>
-            </ol>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-            </div>
-          </li>
-          <!-- user -->
-          <li class="block-message block-you-message">
-            <p class="block-message__text">Вопросы по поступлению</p>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-              <a class="block-message__back">Назад</a>
-            </div>
-          </li>
-          <!-- bot -->
-          <li class="block-message block-bot-message">
-            <p class="block-message__text">Что вас интересует?</p>
-            <ol class="block-message__answers">
-              <li class="block-message__answer">
-                <a href="#">
-                  Какие сроки приема документов для поступления?
-                </a>
-              </li>
-              <li class="block-message__answer">
-                <a href="#">
-                  Какой распорядок работы приёмной комиссии?
-                </a>
-              </li>
-            </ol>
-            <div class="block-message__footer">
-              <p class="block-message__footer__data">
-                {{ new Date() | dateFilter() }}
-              </p>
-            </div>
-          </li>
+      <Search />
+      <div class="chat-bot__dialog" ref="chatBody">
+        
+        <ul class="chat-bot__body" >
+          <Message
+            v-for="(item, index) in dialog"
+            :key="item.question.id"
+            :message="item"
+            :selfId="index"/>
         </ul>
       </div>
     </div>
@@ -353,73 +252,72 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from "vuex";
-import Search from '@/components/Search.vue';
+import { mapState, mapActions } from "vuex";
+import Search from "@/components/Search.vue";
+import Message from "@/components/Message.vue";
 
 export default {
   name: "Chat",
-  components:{
-    Search
+  components: {
+    Search,
+    Message,
   },
   data() {
     return {};
   },
   computed: {
-    ...mapState(["isChatOpen", "session", "botStatus", "session"])
+    ...mapState(["isChatOpen", "session", "botStatus", "dialog"]),
+
+  },
+  watch: {
+    dialog() {
+      const chatBody = this.$refs.chatBody;
+      setTimeout(() => {
+        chatBody.scrollTop = chatBody.scrollHeight;
+      });
+    }
   },
   methods: {
-    // ...mapGetters(['GET_COOKIE_SESSION']),
-    // ...mapActions(['REGISTER_SESSION']),
-    ...mapActions(['FETCH_DATA']),
+    ...mapActions([
+      "FETCH_DATA",
+      "REGISTER_SESSION",
+      "GET_QUESTION",
+      "CHECK_SESSION"
+    ]),
     selectItem(item) {
       this.selectItem = item;
     }
   },
-  created() {
-    // console.log("env=", process.env);
+  async created() {
     this.FETCH_DATA();
     // если coockie нет то регестрируем новую сессию и записываем id сессии в куки
     if (!this.session) {
       console.log(`кук нет регестрируем сессию`);
-      // this.REGISTER_SESSION();
-      // this.$store.dispatch("REGISTER_SESSION");
-
-      // ждем завершения registerSession() и после выполняем getQuestion
-      // $.when(registerSession()).done(function({ id }) {
-      // console.log(`сессия зарагестрированна ${id}`); // получаем id сессии из coockie
-      // getQuestion(id);
-      // начинаем диалог
-      // });
-    } // если coockie есть
-    else {
-      console.log("куки есть");
-      console.log(this.session);
-
-      // получаем id сессии из coockie
-      // var session_id = getCookie("session");
-      // console.log(`cookie already exist ${session_id}`);
-      // // проверяем на срок годности coockie
-      // var str = checkSession(session_id);
-
-      // // если сессия валидна
-      // if (str === "valid") {
-      //     console.log("session is valid");
-      //     // подгружаем историю и продолжаем диалог
-      //     getHistory(session_id);
-      // } // если сессия не валидна
-      // else {
-      //     console.log("session is not valid");
-      //     // регистрируем новую сессию
-      //     $.when(registerSession()).done(function({ id }) {
-      //         // console.log(`сессия зарагестрированна ${id}`); // получаем id сессии из coockie
-      //         getQuestion(id); // начинаем диалог
-      //     });
-      // }
+      await this.REGISTER_SESSION();
+      await this.GET_QUESTION(); // начинаем диалог
+    } else {
+      console.log("куки есть", this.session);
+      // проверяем на срок годности coockie
+      const isValid = await this.CHECK_SESSION();
+      // если сессия валидна
+      if (isValid === "valid") {
+        console.log("session is valid");
+        // подгружаем историю и продолжаем диалог
+        //     getHistory(session_id);
+      } // если сессия не валидна
+      else {
+        console.log("session is not valid");
+        //     // регистрируем новую сессию
+        //     $.when(registerSession()).done(function({ id }) {
+        //         // console.log(`сессия зарагестрированна ${id}`); // получаем id сессии из coockie
+        //         getQuestion(id); // начинаем диалог
+        //     });
+      }
     }
   }
 };
 </script>
-<style lang="stylus" scoped>
+<style lang="stylus">
 @import '~@/assets/stylus/_colors.styl'
 @import '~@/assets/stylus/chat.styl'
 </style>

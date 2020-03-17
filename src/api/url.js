@@ -1,7 +1,5 @@
 export default {
-  // domain: "http://pi.mvodya.com/Sandbox/botapi/public/",
-  domain: "https://jsonplaceholder.typicode.com/comments",
-  prefix: "api/",
+  domain: process.env.VUE_APP_URL,
   paths: {
     back: "chat/back",
     select: "chat/select",

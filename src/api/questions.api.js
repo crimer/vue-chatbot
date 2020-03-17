@@ -1,34 +1,52 @@
 import axios from "axios";
-// import url from "./url";
+import url from "./url";
 
 const http = axios.create({
-  baseURL: process.env.VUE_APP_URL,
-  // headers: {
-  //   "Content-Type": "application/json"
-  // }
+  baseURL: url.domain
 });
 
-const registerSession = () => {
-  http.post();
-};
-
 const jsonPlaceholder = () => {
-  http.get('/comments');
+  return http.get("https://jsonplaceholder.typicode.com/comments");
 };
 
 const getAll = () => {
-  http.post();
+  return http.post();
 };
 
-const getHistory = () => {};
+const getHistory = sessionId => {
+  return http.post(url.paths.history, {
+    id: sessionId
+  });
+};
+const back = (sessionId, step) => {
+  return http.post(url.paths.back, {
+    id: sessionId,
+    step: step
+  });
+};
 
-const back = () => {};
+const getQuestion = sessionId => {
+  return http.post(url.paths.getQuestion, {
+    id: sessionId
+  });
+};
 
-const getQuestion = () => {};
+const registerSession = () => {
+  return http.post(url.paths.registerSession);
+};
 
-const checkSession = () => {};
+const checkSession = sessionId => {
+  return http.post(url.paths.checkSession, {
+    id: sessionId
+  });
+};
 
-const selectAnswer = () => {};
+const selectAnswer = (sessionId, questionId) => {
+  return http.post(url.paths.select, {
+    id: sessionId,
+    select: questionId
+  });
+};
 
 export {
   registerSession,

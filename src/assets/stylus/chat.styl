@@ -6,23 +6,34 @@
 a
   text-decoration none
 
+.vvsu-chat-bot
+  position fixed
+  right 20px
+  bottom 100px
+  top auto
+  max-width 340px
+  width 90%
+
 .chat-bot
   z-index 1000
   border-radius 15px
-  width 375px
-  // height 84%
-  height 620px
-  transition 0.2s
-  position fixed
-  bottom 100px
-  right -400px
+  height calc(100vh - 100px)
+  max-height 590px
+  transition opacity 0.2s ease-in
+  visibility hidden
+  display none
+  opacity 0
+  transform translateY(50px)
   box-shadow 0px 0px 20px 0px #666
-  background-color main-bot-bg-color
-  display flex
-  flex-direction column
+  background-color mainBotBgColor
+  transition all 0.3s ease-in
+
 
   &.isActive
-    right 20px !important
+    display block
+    opacity 1
+    transform translateY(0px)
+    visibility visible
 
   &__header
     border-top-left-radius 15px
@@ -35,7 +46,7 @@ a
     padding 10px
     align-items center
     flex-flow row nowrap
-    background-color main-blue
+    background-color mainBlue
 
     &__img svg
       width 50px
@@ -53,7 +64,10 @@ a
     overflow-x hidden
     overflow-y hidden
     position relative
-    height 100%
+    height 87%
+    display flex
+    flex-direction column
+    justify-content space-between
 
     &::-webkit-scrollbar
       width 0px
@@ -61,129 +75,26 @@ a
   &__dialog
     overflow-x hidden
     overflow-y scroll
-    height calc(100% - 60px)
-    overflow: -moz-scrollbars-none;
-    -ms-overflow-style: none;
+    overflow -moz-scrollbars-none
+    -ms-overflow-style none
+    flex 1 1 auto
+    .text-helper
+      color: #878b90;
+      font-size: 14px;
+      line-height: 24px;
+      margin 0 auto
 
     &::-webkit-scrollbar
       width 0px
 
-  &__body
-    display flex
-    flex-direction column
-
-
 ul, ol > li
   list-style-type none
 
-.block-message
-  color black
-  line-height 20px
-  word-wrap break-word
-  position relative
-
-  &__back
-    transition all 0.2s ease
-
-    &:hover
-      cursor pointer
-      color black
-
-  &:not(:last-child)
-    margin-bottom 20px
-
-  width 85%
-  padding 11px 18px
-  border-radius 8px
-  font-size 14px
-  font-family 'RobotoRegular'
-
-  &__answer
-    counter-increment list
-    margin-left 20px
-
-    &:not(:last-child)
-      margin-bottom 10px
-
-    &:before
-      content counter(list) '.'
-      color black
-
-    &.disabled
-      &:before
-        color disabled-link !important
-
-      a
-        pointer-events none
-        cursor default
-        color disabled-link !important
-
-    a
-      color black
-      transition all 0.2s ease
-      cursor pointer
-
-      &:hover
-        color main-blue
-
-        & ^[1]:before
-          color main-blue
-
-  &__text
-    margin-bottom 5px
-
-  &__footer
-    display flex
-    justify-content space-between
-    align-items flex-end
-    margin-top 10px
-
-    &__data
-      font-size 14px
-      font-family 'RobotoItalic'
-
-.block-bot-message
-  align-self flex-start
-  background-color bot-message-color
-
-  // &:after
-  //   content ''
-  //   width 30px
-  //   height 15px
-  //   transform skewX(20deg)
-  //   border-top 2px solid bot-message-color
-  //   border-left 2px solid bot-message-color
-  //   border-radius 2px
-  //   position absolute
-  //   z-index -1000
-  //   top 0
-  //   left -3px
-  //   background-color bot-message-color
-  //   margin auto
-
-.block-you-message
-  align-self flex-end
-  background-color main-blue
-  color white
-
-  // &:after
-  //   content ''
-  //   width 30px
-  //   height 15px
-  //   transform skewX(-20deg)
-  //   border-top 2px solid main-blue
-  //   border-right 2px solid main-blue
-  //   border-radius 2px
-  //   position absolute
-  //   z-index -1000
-  //   top 0
-  //   right -3px
-  //   background-color main-blue
-  //   margin auto
-
-@media only screen and (max-width:430px)
+@media only screen and (max-width: 430px)
   .chat-bot
-    right -450px
-    &.isActive
-      width 100%
-      right 0px !important
+    &__chat
+      padding 10px
+
+    // &.isActive
+    //   width 90%
+      // right 0px !important

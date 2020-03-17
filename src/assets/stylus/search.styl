@@ -1,7 +1,6 @@
 .search-block
   margin-bottom 20px !important
   width 100%
-  overflow hidden
 
 .search-block__wrapper
   width 100%
@@ -9,39 +8,29 @@
   position relative
 
 .search-block__input
-  position relative
-  box-sizing border-box
-  font-size 14px
-  display inline-block
-  border 0
-  box-shadow inset 0 0 0 1px #FFFFFF
-  background #FFFFFF
-  padding 0
-  padding-right 25px
-  padding-left 12px
-  border-radius 4px
-  border 1px solid main-blue
-  width 100%
-  height 100%
-  vertical-align middle
-  white-space normal
-  -webkit-appearance none
-  -moz-appearance none
-  appearance none
+  border: 1px solid #eee;
+  border-radius: 8px;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 16px;
+  line-height: 1.5;
+  flex: 1;
+  background-color: #eee;
 
 .highlight
-  background-color rgba(hightlight-color, 1)
+  background-color rgba(hightlightColor, 1)
 
 .search-block__input::-webkit-search-decoration, .search-block__input::-webkit-search-cancel-button, .search-block__input::-webkit-search-results-button, .search-block__input::-webkit-search-results-decoration
   display none
 
-.search-block__input:hover
-  box-shadow inset 0 0 0 1px rgba(main-blue, 0.3)
-
 .search-block__input
   &:focus, &:active
-    outline 0
-    background #FFFFFF
+    border-color: rgba(0, 0, 0, 0.12);
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
 
   &::-ms-clear, &::-ms-reveal
     display none
@@ -52,24 +41,18 @@
     color #AAAAAA
 
 .list
-  width 327px
-  max-height 70%
-  // max-height 260px
-  // height 70%
-  padding 0
-  margin 0
-  position absolute
-  top 60px
-  z-index 99
-  overflow-y scroll
-  border-radius 4px
-  border-top-left-radius 0px
-  border-top-right-radius 0px
-  border 1px solid main-blue
-  border-top-width 0px
-  background-color #fff
-  overflow -moz-scrollbars-none
-  -ms-overflow-style none
+
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0;
+  box-sizing: border-box;
+  max-height: 296px;
+  overflow-y: auto;
+  background: #fff;
+  list-style: none;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
 
   &::-webkit-scrollbar
     width 0px !important
@@ -95,15 +78,15 @@
       line-height 20px
 
     &.selected
-      background-color rgba(main-blue, 0.3)
+      background-color rgba(mainBlue, 0.3)
 
 .search-block__reset
   outline none
   display block
   font-size 23px
   position absolute
-  top 8px
-  right 8px
+  top 12px
+  right 13px
   margin 0
   border 0
   background none

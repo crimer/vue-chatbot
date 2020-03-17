@@ -11,18 +11,16 @@
         @keydown.up="up"
         @keydown.down="down"
         @focus="showList = true"
-      />
+        @blur="showList = false"/>
       <button
         type="reset"
         class="search-block__reset"
         @click="closeList"
-        v-show="searchQuery !== ''"
-      >
+        v-show="searchQuery !== ''">
         &times;
       </button>
     </div>
     <ul class="list" role="listbox" ref="questionsList" v-show="showList">
-      <!-- <virtual-list :size="200" :remain="8"> -->
       <li
         v-for="question in searchedQuestion"
         :key="question.id"
@@ -32,18 +30,15 @@
         @click="itemClick(question.id)">
         <p v-html="highlightKeyword(question.body)"></p>
       </li>
-      <!-- </virtual-list> -->
     </ul>
   </div>
 </template>
 
 <script>
 import { mapActions, mapState, mapMutations, mapGetters } from "vuex";
-// import virtualList from "vue-virtual-scroll-list";
 
 export default {
   name: "Search",
-  // components: { "virtual-list": virtualList },
   data() {
     return {
       itemHeight: 80,
@@ -53,7 +48,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["searchQuery", "dialog"]),
+    ...mapState(["searchQuery", "allQuestions"]),
     ...mapGetters(["searchedQuestion", "getSearchQuestionById"]),
     query: {
       set(val) {

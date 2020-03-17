@@ -1,7 +1,9 @@
 <template>
   <div id="app">
-    <ChatButton />
-    <Chat />
+    <div class="vvsu-chat-bot">
+      <ChatButton />
+      <Chat />
+    </div>
   </div>
 </template>
 

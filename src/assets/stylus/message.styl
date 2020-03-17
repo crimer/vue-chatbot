@@ -1,0 +1,95 @@
+*
+  margin 0
+  padding 0
+  box-sizing border-box
+
+a
+  text-decoration none
+
+.chat-bot__body
+  display flex
+  flex-direction column
+  overflow-x hidden
+  overflow-y auto
+
+ul, ol > li
+  list-style-type none
+  margin 0 !important
+
+.block-message
+  padding 11px 18px
+  color black
+  line-height 20px
+  word-wrap break-word
+  position relative
+  width 85%
+  border-radius 8px
+  font-size 14px
+  font-family 'RobotoRegular'
+
+  &:not(:last-child)
+    margin-bottom 20px
+
+  &__back
+    transition all 0.2s ease
+
+    &:hover
+      cursor pointer
+      color black
+
+  &__answer
+    counter-increment list
+    margin-left 10px
+
+    &:not(:last-child)
+      margin-bottom 10px
+
+    &:before
+      content counter(list) '.'
+      color black
+
+    &.disabled
+      &:before
+        color disabledLink !important
+
+      span
+        pointer-events none
+        cursor default
+        color disabledLink !important
+
+    span
+      color black
+      transition all 0.2s ease
+      cursor pointer
+
+      &:hover
+        color mainBlue
+
+        & ^[1]:before
+          color mainBlue
+
+  &__text
+    margin-bottom 5px
+
+  &__footer
+    display flex
+    justify-content space-between
+    align-items flex-end
+    margin-top 10px
+
+    &__data
+      font-size 14px
+      font-family 'RobotoItalic'
+
+.block-bot-message
+  align-self flex-start
+  background-color botMessageColor
+
+.block-you-message
+  align-self flex-end
+  background-color mainBlue
+  color white
+
+@media only screen and (max-width: 430px)
+  .block-message
+    padding 9px 15px
