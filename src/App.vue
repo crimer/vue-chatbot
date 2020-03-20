@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div class="vvsu-chat-bot">
-      <ChatButton />
       <Chat />
+      <ChatButton />
     </div>
   </div>
 </template>

@@ -1,32 +1,27 @@
 <template>
-  <li
-    class="block-message"
-    :class="[message.question.user ? 'block-you-message' : 'block-bot-message']"
-  >
+  <li class="block-message"
+    :class="[message.question.user ? 'block-you-message' : 'block-bot-message']">
     <p class="block-message__text" v-html="message.question.text"></p>
     <ul class="block-message__answers">
       <li
         class="block-message__answer"
         :class="disableLinks"
         v-for="answer in message.answers"
-        :key="answer.id"
-      >
+        :key="answer.id">
         <span
           @click="selectAnswer(answer.id, answer.text, message.step)"
-          v-html="answer.text"
-        >
+          v-html="answer.text">
         </span>
       </li>
     </ul>
     <div class="block-message__footer">
       <p class="block-message__footer__data">
-        {{ new Date() | dateFilter() }}
+        {{ date }}
       </p>
       <a
         class="block-message__back"
         @click="BACK(selfId)"
-        v-if="message.question.user"
-      >
+        v-if="message.question.user">
         Назад
       </a>
     </div>
@@ -40,6 +35,7 @@ export default {
   // аргументы которые принимает компонент
   props: {
     message: {
+      type:Object,
       required: true,
       default: {}
     },
@@ -59,6 +55,9 @@ export default {
       return this.selfId === this.$store.state.dialog.length - 1
         ? ""
         : "disabled";
+    },
+    date() {
+      return this.message.date ? (this.message.date) : (this.$options.filters.dateFilter(new Date()));
     }
   },
   methods: {

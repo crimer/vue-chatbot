@@ -237,16 +237,7 @@
     </div>
     <div class="chat-bot__chat">
       <Search />
-      <div class="chat-bot__dialog" ref="chatBody">
-        
-        <ul class="chat-bot__body" >
-          <Message
-            v-for="(item, index) in dialog"
-            :key="item.question.id"
-            :message="item"
-            :selfId="index"/>
-        </ul>
-      </div>
+      <Dialog :dialog="dialog"/>
     </div>
   </section>
 </template>
@@ -254,35 +245,28 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import Search from "@/components/Search.vue";
-import Message from "@/components/Message.vue";
+import Dialog from "@/components/Dialog.vue";
 
 export default {
   name: "Chat",
   components: {
     Search,
-    Message,
+    Dialog,
   },
   data() {
     return {};
   },
   computed: {
-    ...mapState(["isChatOpen", "session", "botStatus", "dialog"]),
-
+    ...mapState(["isChatOpen", "session", "dialog"]),
   },
-  watch: {
-    dialog() {
-      const chatBody = this.$refs.chatBody;
-      setTimeout(() => {
-        chatBody.scrollTop = chatBody.scrollHeight;
-      });
-    }
-  },
+  
   methods: {
     ...mapActions([
       "FETCH_DATA",
       "REGISTER_SESSION",
       "GET_QUESTION",
-      "CHECK_SESSION"
+      "CHECK_SESSION",
+      "GET_HISTORY",
     ]),
     selectItem(item) {
       this.selectItem = item;
@@ -303,15 +287,11 @@ export default {
       if (isValid === "valid") {
         console.log("session is valid");
         // подгружаем историю и продолжаем диалог
-        //     getHistory(session_id);
+        this.GET_HISTORY();
       } // если сессия не валидна
       else {
         console.log("session is not valid");
-        //     // регистрируем новую сессию
-        //     $.when(registerSession()).done(function({ id }) {
-        //         // console.log(`сессия зарагестрированна ${id}`); // получаем id сессии из coockie
-        //         getQuestion(id); // начинаем диалог
-        //     });
+        // TODO: что-то делать тут
       }
     }
   }
