@@ -243,7 +243,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapMutations } from "vuex";
 import Search from "@/components/Search.vue";
 import Dialog from "@/components/Dialog.vue";
 
@@ -268,6 +268,7 @@ export default {
       "CHECK_SESSION",
       "GET_HISTORY",
     ]),
+    ...mapMutations(['CLEAR_COOKIE']),
     selectItem(item) {
       this.selectItem = item;
     }
@@ -275,6 +276,7 @@ export default {
   async created() {
     this.FETCH_DATA();
     // если coockie нет то регестрируем новую сессию и записываем id сессии в куки
+    
     if (!this.session) {
       console.log(`кук нет регестрируем сессию`);
       await this.REGISTER_SESSION();
@@ -291,6 +293,7 @@ export default {
       } // если сессия не валидна
       else {
         console.log("session is not valid");
+        this.CLEAR_COOKIE();
         // TODO: что-то делать тут
       }
     }

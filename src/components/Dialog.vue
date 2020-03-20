@@ -3,9 +3,10 @@
     <ul class="chat-bot__body">
       <Message
         v-for="(item, index) in dialog"
-        :key="index"
+        :key="index + 1"
         :message="item"
-        :selfId="index"/>
+        :selfId="index + 1"
+      />
     </ul>
   </div>
 </template>
@@ -28,6 +29,7 @@ export default {
   watch: {
     dialog() {
       const chatBody = this.$refs.chatBody;
+     
       setTimeout(() => {
         chatBody.scrollTop = chatBody.scrollHeight;
       });

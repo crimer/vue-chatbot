@@ -40,6 +40,7 @@ export default {
       default: {}
     },
     selfId: {
+      tyoe:Number,
       required: true,
       default: 0
     }
@@ -52,7 +53,7 @@ export default {
       // если selfId сообщения равен последнему элементу в массиве dialog
       // то значит это последнее сообщения (от бота) (сообщения бота всегда последнии)
       // и его я не выключаю, а предыдущие выключаю
-      return this.selfId === this.$store.state.dialog.length - 1
+      return this.selfId === this.$store.state.dialog.length
         ? ""
         : "disabled";
     },

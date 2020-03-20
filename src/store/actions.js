@@ -100,7 +100,7 @@ export default {
       const sessionId = state.session;
       const res = await api.back(sessionId, countBack);
       if (res.status === 200) {
-        commit("BACK", selfId);
+        commit("BACK", backToElement);
       }
     } catch (e) {
       console.log("select answer error", e);
