@@ -14,8 +14,7 @@ export default new Vuex.Store({
   state,
   // getters - возвращают модифицированные даные
   getters,
-  // mutations - изменяют состояния хранилища (state)
-  // не писать ничего кроме изменения state
+  // mutations - используется только для изменения state
   mutations,
   // actions - используются для всего асинхронного
   actions

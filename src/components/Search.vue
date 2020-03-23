@@ -1,34 +1,30 @@
 <template>
   <div class="search-block">
     <div class="search-block__wrapper">
-      <input
-        type="text"
+      <input type="text"
         name="search"
         placeholder="Ваш вопрос"
         autocomplete="off"
         class="search-block__input"
         v-model="query"
-        @keydown.up="up"
-        @keydown.down="down"
-        @focus="showList = true"
-        @blur="showList = false"/>
+        @input="input()"
+        @focus="showList = true"/>
       <button
         type="reset"
         class="search-block__reset"
         @click="closeList"
-        v-show="searchQuery !== ''">
+        v-show="query !== ''">
         &times;
       </button>
     </div>
     <ul class="list" role="listbox" ref="questionsList" v-show="showList">
-      <li
-        v-for="question in searchedQuestion"
+      <li v-for="question in allQuestions"
         :key="question.id"
         role="option"
         class="list__search-item"
         :class="{ selected: selectedId === question.id }"
         @click="itemClick(question.id)">
-        <p v-html="highlightKeyword(question.body)"></p>
+        <p v-html="highlightText(question.text)"></p>
       </li>
     </ul>
   </div>
@@ -36,44 +32,33 @@
 
 <script>
 import { mapActions, mapState, mapMutations, mapGetters } from "vuex";
+import {tokenizeText} from '@/utils/tokenizeText.js';
 
 export default {
   name: "Search",
   data() {
     return {
-      itemHeight: 80,
+      query: '',
       selectedItem: null,
-      selectedId: null,
+      selectedId: 0,
       showList: false
     };
   },
   computed: {
-    ...mapState(["searchQuery", "allQuestions"]),
-    ...mapGetters(["searchedQuestion", "getSearchQuestionById"]),
-    query: {
-      set(val) {
-        return this.setSearchQuery(val);
-      },
-      get() {
-        return this.searchQuery;
-      }
-    }
+    ...mapState(["allQuestions"]),
+    ...mapGetters(["searchedQuestion","getSearchQuestionById"]),
+    allQuestions(){
+      return this.searchedQuestion(this.query);
+    },
   },
   methods: {
-    ...mapMutations(["CLEAR_QUERY"]),
-    closeList() {
-      this.CLEAR_QUERY();
-      this.showList = false;
-    },
-    // получаю из хранилища action'ы
-    ...mapActions(["setSearchQuery"]),
-    // TODO: переделать родсветку (иногда не подсвечивает)
-    highlightKeyword(str) {
+    ...mapMutations(["SET_DIALOG"]),
+    ...mapActions(["SELECT_ANSWER"]),
+    highlightText(str) {
       // если есть текст и запрос
-      if (str && this.searchQuery) {
-        var highlight = this.searchQuery.toLowerCase();
+      if (str && this.query) {
+        var highlight = this.query.toLowerCase();
         return str
-          .toLowerCase()
           .replace(
             new RegExp(highlight, "ig"),
             '<span class="highlight">$&</span class="highlight">'
@@ -82,25 +67,31 @@ export default {
         return str;
       }
     },
-
-    itemClick(index) {
-      this.selectedId = index;
-      this.selectItem = this.getSearchQuestionById(this.selectedId);
-      console.log(this.selectItem);
+    input(){
+      tokenizeText(this.query);
     },
-    up() {
-      if (this.selectedId === 0) return;
-      this.selectedId -= 1;
-      this.scrollToItem();
+    itemClick(questionId) {
+      this.showList = false
+      this.selectedId = questionId;
+      this.selectedItem = this.getSearchQuestionById(this.selectedId);
+      //  формирую сообщение юзера
+      const question = {
+        question: {
+          id: this.selectedItem.id,
+          text: this.selectedItem.text,
+          user: true
+        },
+        // step: messageStep
+      };
+      // пихаю сообщение юзера в диалог
+      this.SET_DIALOG(question);
+      // вызываю следующий вопрос
+      this.SELECT_ANSWER(this.selectedId);
     },
-    down() {
-      if (this.selectedId >= this.dialog.length - 1) return;
-      this.selectedId += 1;
-      this.scrollToItem();
+    closeList() {
+      this.query = '';
+      this.showList = false;
     },
-    scrollToItem() {
-      this.$refs.questionsList.scrollTop = this.selectedId * this.itemHeight;
-    }
   }
 };
 </script>

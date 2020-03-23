@@ -5,8 +5,7 @@
         v-for="(item, index) in dialog"
         :key="index + 1"
         :message="item"
-        :selfId="index + 1"
-      />
+        :selfId="index + 1"/>
     </ul>
   </div>
 </template>
@@ -28,8 +27,8 @@ export default {
   },
   watch: {
     dialog() {
+      // на кождое изменение dialog (в store) список будет прокручиваться вниз
       const chatBody = this.$refs.chatBody;
-     
       setTimeout(() => {
         chatBody.scrollTop = chatBody.scrollHeight;
       });

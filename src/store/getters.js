@@ -1,13 +1,16 @@
+import tokenize from "@/utils/tokenizeText.js";
+
 export default {
   getSearchQuestionById: state => id => {
-    return state.allQuestions.find(q => q.id === id);
+    return state.allQuestions.answers.find(q => q.id === id);
   },
-  searchedQuestion: state => {
-    if (state.searchQuery === "") return [];
-    let questions = state.allQuestions.filter(q => {
-      if (
-        q.body.toLowerCase().indexOf(state.searchQuery.toLowerCase()) !== -1
-      ) {
+  searchedQuestion: state => searchQuery => {
+    if (searchQuery === "") return [];
+    // let query = tokenize(state.searchQuery);
+    // console.log(query);
+
+    let questions = state.allQuestions.answers.filter(q => {
+      if (q.text.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
         return q;
       }
     });

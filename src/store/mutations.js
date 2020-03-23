@@ -1,13 +1,10 @@
 import VueCookie from "vue-cookie";
 
 export default {
-  SET_QUERY(state, payload) {
-    state.searchQuery = payload;
-  },
-  CLEAR_QUERY(state) {
-    state.searchQuery = "";
-  },
+  // в каждой мутации state должен идти как первый аргумент
   TOGGLE_CHAT(state, payload) {
+    // state - переменные хранилища
+    // payload - данные
     state.isChatOpen = payload;
   },
   SET_BOT_STATUS(state, payload) {

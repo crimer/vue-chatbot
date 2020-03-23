@@ -18,8 +18,7 @@
       <p class="block-message__footer__data">
         {{ date }}
       </p>
-      <a
-        class="block-message__back"
+      <a class="block-message__back"
         @click="BACK(selfId)"
         v-if="message.question.user">
         Назад
@@ -35,12 +34,12 @@ export default {
   // аргументы которые принимает компонент
   props: {
     message: {
-      type:Object,
+      type: Object,
       required: true,
       default: {}
     },
     selfId: {
-      tyoe:Number,
+      tyoe: Number,
       required: true,
       default: 0
     }
@@ -53,12 +52,12 @@ export default {
       // если selfId сообщения равен последнему элементу в массиве dialog
       // то значит это последнее сообщения (от бота) (сообщения бота всегда последнии)
       // и его я не выключаю, а предыдущие выключаю
-      return this.selfId === this.$store.state.dialog.length
-        ? ""
-        : "disabled";
+      return this.selfId === this.$store.state.dialog.length ? "" : "disabled";
     },
     date() {
-      return this.message.date ? (this.message.date) : (this.$options.filters.dateFilter(new Date()));
+      return this.message.date
+        ? this.message.date
+        : this.$options.filters.dateFilter(new Date());
     }
   },
   methods: {

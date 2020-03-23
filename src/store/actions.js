@@ -2,18 +2,15 @@ import { normalizeHistory } from "../utils/normalize.histoty";
 import * as api from "../api/questions.api";
 
 export default {
-  setSearchQuery({ commit }, searchQuery) {
-    commit("SET_QUERY", searchQuery);
-  },
-
-  // TODO: УДАЛИТЬ FETCH_DATA (это для тестов)
-  async FETCH_DATA({ commit }) {
+  async FETCH_QUESTIONS({ commit }) {
     try {
-      const { data } = await api.jsonPlaceholder();
-      // вызываем мутацию SET_DIALOG и передаем в нее данные
-      commit("SET_ALL_QUESTIONS", data);
+      const res = await api.getAllQuestions();
+      if(res.status === 200){
+        // вызываем мутацию SET_DIALOG и передаем в нее данные
+        commit("SET_ALL_QUESTIONS", res.data);
+      }
     } catch (e) {
-      console.log(e);
+      console.log('fetch questions faild',e);
     }
   },
 
@@ -22,7 +19,6 @@ export default {
       const res = await api.registerSession();
       if (res.status === 200) {
         commit("SET_COOKIE", res.data.id);
-        console.log("session registred =>", res.data.id);
       } else {
         // TODO: ЧТО-ТО ТУТ ДЕЛАТЬ
         commit("CLEAR_COOKIE");
@@ -53,7 +49,6 @@ export default {
       const sessionId = state.session;
       const res = await api.checkSession(sessionId);
       if (res.status === 200) {
-        console.log(`session ${res.data.status}`);
         return res.data.status;
       } else {
         // TODO: ЧТО-ТО ТУТ ДЕЛАТЬ
@@ -69,20 +64,24 @@ export default {
       const res = await api.getHistory(sessionId);
       if (res.status === 200) {
         const history = await normalizeHistory(res.data);
-        console.log("history loaded", history);
-        // commit("SET_DIALOG", ...history);
         commit("SET_HISTORY", history);
       }
     } catch (e) {
       console.log("get history error", e);
     }
   },
-
+  // работаем с запросами к api
+  // первый агрумент context у которого есть state, commit, dispatch, getters
+  // { state, commit } берем из context только то что нужно
+  // questionId аргумент который передаем в action
   async SELECT_ANSWER({ state, commit }, questionId) {
     try {
+      // получаем из state сессию
       const sessionId = state.session;
+      // получаем ответ с api
       const res = await api.selectAnswer(sessionId, questionId);
       if (res.status === 200) {
+        // commit вызывает мутацию SET_DIALOG в которую передаем res.data в качестве payload
         commit("SET_DIALOG", res.data);
       }
     } catch (e) {
@@ -103,7 +102,7 @@ export default {
         commit("BACK", backToElement);
       }
     } catch (e) {
-      console.log("select answer error", e);
+      console.log("back error", e);
     }
   }
 };

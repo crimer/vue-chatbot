@@ -1,5 +1,4 @@
 <template>
-  <!-- chat -->
   <section class="chat-bot" :class="{ isActive: isChatOpen }">
     <div class="chat-bot__header">
       <span class="chat-bot__header__img">
@@ -237,7 +236,7 @@
     </div>
     <div class="chat-bot__chat">
       <Search />
-      <Dialog :dialog="dialog"/>
+      <Dialog :dialog="dialog" />
     </div>
   </section>
 </template>
@@ -251,32 +250,28 @@ export default {
   name: "Chat",
   components: {
     Search,
-    Dialog,
+    Dialog
   },
   data() {
     return {};
   },
   computed: {
-    ...mapState(["isChatOpen", "session", "dialog"]),
+    ...mapState(["isChatOpen", "session", "dialog"])
   },
-  
+
   methods: {
     ...mapActions([
-      "FETCH_DATA",
+      "FETCH_QUESTIONS",
       "REGISTER_SESSION",
       "GET_QUESTION",
       "CHECK_SESSION",
-      "GET_HISTORY",
+      "GET_HISTORY"
     ]),
-    ...mapMutations(['CLEAR_COOKIE']),
-    selectItem(item) {
-      this.selectItem = item;
-    }
+    ...mapMutations(["CLEAR_COOKIE"])
   },
   async created() {
-    this.FETCH_DATA();
+    this.FETCH_QUESTIONS();
     // если coockie нет то регестрируем новую сессию и записываем id сессии в куки
-    
     if (!this.session) {
       console.log(`кук нет регестрируем сессию`);
       await this.REGISTER_SESSION();

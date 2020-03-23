@@ -1,3 +1,4 @@
+// экспорт методов api
 export default {
   domain: process.env.VUE_APP_URL,
   paths: {
@@ -6,6 +7,7 @@ export default {
     history: "chat/history",
     getQuestion: "chat/get",
     checkSession: "session/check",
-    registerSession: "session/register"
+    registerSession: "session/register",
+    keys: "chat/keys",
   }
 };

@@ -1,14 +1,12 @@
 import VueCookie from "vue-cookie";
 
 export default {
-  // для поиска
-  searchQuery: "",
+  // список вопросов для поиска
   allQuestions: [],
   // для диалога
   dialog: [],
+  // чат открыт/закрыт
   isChatOpen: false,
-  // другое
+  // сессия
   session: VueCookie.get("session") || null,
-  isOnline: false,
-  botStatus: ""
 };

@@ -16,10 +16,8 @@ export default {
   components: {
     Chat,
     ChatButton
-  }
+  },
 };
 </script>
 
-<style lang="css">
-
-</style>
+<style lang="css"></style>

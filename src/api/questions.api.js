@@ -1,61 +1,50 @@
 import axios from "axios";
 import url from "./url";
 
+// экземпляр axios для обращения к api
 const http = axios.create({
   baseURL: url.domain
 });
 
-const jsonPlaceholder = () => {
-  return http.get("https://jsonplaceholder.typicode.com/comments");
-};
-
-const getAll = () => {
+export const getAll = () => {
   return http.post();
 };
-
-const getHistory = sessionId => {
+// экспорт метода getHistory, который принемает sessionId и отправляет post
+// запрос на url.paths.history, с атрибутом id
+export const getHistory = sessionId => {
   return http.post(url.paths.history, {
     id: sessionId
   });
 };
-const back = (sessionId, step) => {
+export const back = (sessionId, step) => {
   return http.post(url.paths.back, {
     id: sessionId,
     step: step
   });
 };
 
-const getQuestion = sessionId => {
+export const getQuestion = sessionId => {
   return http.post(url.paths.getQuestion, {
     id: sessionId
   });
 };
 
-const registerSession = () => {
+export const registerSession = () => {
   return http.post(url.paths.registerSession);
 };
 
-const checkSession = sessionId => {
+export const checkSession = sessionId => {
   return http.post(url.paths.checkSession, {
     id: sessionId
   });
 };
+export const getAllQuestions = () => {
+  return http.post(url.paths.keys);
+};
 
-const selectAnswer = (sessionId, questionId) => {
+export const selectAnswer = (sessionId, questionId) => {
   return http.post(url.paths.select, {
     id: sessionId,
     select: questionId
   });
 };
-
-export {
-  registerSession,
-  getAll,
-  getHistory,
-  back,
-  getQuestion,
-  checkSession,
-  selectAnswer,
-  jsonPlaceholder
-};
-// TODO: УДАЛИТЬ jsonPlaceholder (это для тестов)

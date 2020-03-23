@@ -1518,6 +1518,11 @@ axios@^0.19.1:
   dependencies:
     follow-redirects "1.5.10"
 
+az@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/az/-/az-0.2.3.tgz#1d0bcf2242418bdd7ae6c6f5e1a42cba072a7017"
+  integrity sha1-HQvPIkJBi9165sb14aQsugcqcBc=
+
 babel-loader@^8.0.6:
   version "8.0.6"
   resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-8.0.6.tgz#e33bdb6f362b03f4bb141a0c21ab87c501b70dfb"
