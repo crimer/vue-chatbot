@@ -13,28 +13,35 @@ a
   top auto
   max-width 340px
   width 90%
+  z-index 99999
 
 .chat-bot
-  z-index 1000
   border-radius 15px
   height calc(100vh - 100px)
   max-height 590px
   transition opacity 0.2s ease-in
   box-shadow 0px 0px 20px 0px #666
   background-color mainBotBgColor
-  z-index -1000
   opacity 0
+  display flex
+  flex-direction column
+  position relative
+  z-index 999
   transform translateY(50px)
   visibility hidden
   transition all 0.2s ease-in
 
   &.isActive
-    display block
-    z-index 9999
     opacity 1
     transform translateY(0px)
     visibility visible
-
+  &__close-btn
+    display none
+    width 20px
+    height 20px
+    margin-left auto
+    margin-right 10px
+    
   &__header
     border-top-left-radius 15px
     border-top-right-radius 15px
@@ -66,6 +73,7 @@ a
     position relative
     height 87%
     display flex
+    flex 1 1 auto
     flex-direction column
     justify-content space-between
 

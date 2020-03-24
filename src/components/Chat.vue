@@ -10,8 +10,7 @@
           y="0px"
           viewBox="0 0 188.148 188.148"
           style="enable-background:new 0 0 188.148 188.148;"
-          xml:space="preserve"
-        >
+          xml:space="preserve">
           <g>
             <g>
               <defs>
@@ -258,7 +257,6 @@ export default {
   computed: {
     ...mapState(["isChatOpen", "session", "dialog"])
   },
-
   methods: {
     ...mapActions([
       "FETCH_QUESTIONS",
@@ -267,7 +265,7 @@ export default {
       "CHECK_SESSION",
       "GET_HISTORY"
     ]),
-    ...mapMutations(["CLEAR_COOKIE"])
+    ...mapMutations(["CLEAR_COOKIE"]),
   },
   async created() {
     this.FETCH_QUESTIONS();

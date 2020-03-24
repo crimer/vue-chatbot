@@ -9,6 +9,6 @@ export const tokenizeText = text => {
   //   console.log(parses[1].tag.toString()); // => 'NOUN,inan,femn plur,nomn'
   // });
   // let tokens = Az.Tokens(text).done();
-  // console.log(tokens;
+  // console.log(tokens);
   
 };

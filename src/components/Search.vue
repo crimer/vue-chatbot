@@ -17,16 +17,18 @@
         &times;
       </button>
     </div>
-    <ul class="list" role="listbox" ref="questionsList" v-show="showList">
-      <li v-for="question in allQuestions"
-        :key="question.id"
-        role="option"
-        class="list__search-item"
-        :class="{ selected: selectedId === question.id }"
-        @click="itemClick(question.id)">
-        <p v-html="highlightText(question.text)"></p>
-      </li>
-    </ul>
+    <div>
+      <ul class="list" ref="questionsList" v-show="showList">
+        <li v-for="question in allQuestions"
+          :key="question.id"
+          role="option"
+          class="list__search-item"
+          :class="{ selected: selectedId === question.id }"
+          @click="itemClick(question.id)">
+          <p v-html="highlightText(question.text)"></p>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
