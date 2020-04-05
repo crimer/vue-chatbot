@@ -13,6 +13,9 @@ export default {
       if (q.text.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
         return q;
       }
+      if (q.keys.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
+        return q;
+      }
     });
     // нахожу совтадения и возвращаю первые 10 совпадений
     return questions.slice(0, 10);
