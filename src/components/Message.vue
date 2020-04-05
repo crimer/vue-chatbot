@@ -58,7 +58,7 @@ export default {
     },
     date() {
       return this.message.date
-        ? this.message.date
+        ? this.$options.filters.dateFilter(new Date(this.message.date))
         : this.$options.filters.dateFilter(new Date());
     }
   },
