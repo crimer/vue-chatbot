@@ -1,6 +1,6 @@
 import Az from "az";
-// import dicts from 'az/dicts/';
-
+// import dicts from '~az/dicts';
+// TODO: не могу подключить словари
 export const tokenizeText = text => {
   // Az.Morph.init(dicts, function() {
   //   let parses = Az.Morph(text);
