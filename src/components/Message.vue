@@ -16,7 +16,7 @@
     </ul>
     <div class="block-message__footer">
       <p class="block-message__footer__data">
-        {{ date | dateFilter('time') }}
+        {{ date  }}
       </p>
       <a class="block-message__back"
         @click="BACK(selfId)"

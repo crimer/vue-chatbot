@@ -1,5 +1,5 @@
 // фильтер даты, получает дату и формат
-export default function dateFilter(value, format = 'datetime') {
+export default function dateFilter(value, format = 'time') {
   const options = {};
   if(format.includes('date')){
     options.day = "2-digit";
