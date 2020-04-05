@@ -10,10 +10,10 @@ export default {
     // console.log(query);
 
     let questions = state.allQuestions.answers.filter(q => {
-      if (q.text.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
-        return q;
-      }
-      if (q.keys.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
+      // Поиск по тексту вопроса и ключевым словам
+      // TODO: нормализация слов и поиск только по ключевым словам
+      var text = q.text + " " + q.keys
+      if (text.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) {
         return q;
       }
     });
