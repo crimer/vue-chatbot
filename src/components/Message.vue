@@ -2,7 +2,7 @@
   <li class="block-message"
     :class="[message.question.user ? 'block-you-message' : 'block-bot-message']">
     <p class="block-message__text" v-html="message.question.text"></p>
-    <ul class="block-message__answers">
+    <ul class="block-message__answers" v-if="message.answers">
       <li
         class="block-message__answer"
         :class="disableLinks"
@@ -15,7 +15,7 @@
       </li>
     </ul>
     <div class="block-message__footer">
-      <p class="block-message__footer__data">
+      <p class="block-message__footer__data" v-if="!message.question.user">
         {{ date  }}
       </p>
       <a class="block-message__back"
