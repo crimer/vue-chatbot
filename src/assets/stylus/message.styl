@@ -31,7 +31,22 @@ ul, ol > li
     margin-bottom 20px
 
   &__back
+    width: 60px
+    height 30px
+    // Компенсация padding'а родителя .block-message
+    margin-right -18px
+    margin-bottom -11px
+    // Закругление такие же, как и у .block-message
+    border-radius 8px
+    text-align center
+    line-height 30px // Центрирование текста
+    background-color #72a1f7
     transition all 0.2s ease
+    // Фикс для экранов (ибо у .block-message меняется padding)
+  @media only screen and (max-width: 430px)
+    &__back
+      margin-right -15px
+      margin-bottom -9px
 
     &:hover
       cursor pointer
