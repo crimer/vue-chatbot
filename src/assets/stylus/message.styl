@@ -43,15 +43,16 @@ ul, ol > li
     line-height 30px // Центрирование текста
     background-color subMainBlue
     transition all 0.2s ease
-    // Фикс для экранов (ибо у .block-message меняется padding)
+    fill #fff
+    &:hover
+      cursor pointer
+      color black
+      fill black
+  // Фикс для экранов (ибо у .block-message меняется padding)
   @media only screen and (max-width: 430px)
     &__back
       margin-right -15px
       margin-bottom -9px
-
-    &:hover
-      cursor pointer
-      color black
 
   &__answer
     counter-increment list
