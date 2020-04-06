@@ -21,7 +21,7 @@
       <a class="block-message__back"
         @click="BACK(selfId)"
         v-if="message.question.user">
-        Назад
+        Назад <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="13px" height="10px" viewBox="0 0 459 459" style="enable-background:new 0 0 459 459;" xml:space="preserve"><path xmlns="http://www.w3.org/2000/svg" d="M178.5,140.25v-102L0,216.75l178.5,178.5V290.7c127.5,0,216.75,40.8,280.5,130.05C433.5,293.25,357,165.75,178.5,140.25z" fill="#fff"/></svg>
       </a>
     </div>
   </li>
