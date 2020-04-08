@@ -35,13 +35,14 @@ a
     opacity 1
     transform translateY(0px)
     visibility visible
+
   &__close-btn
     display none
     width 20px
     height 20px
     margin-left auto
     margin-right 10px
-    
+
   &__header
     border-top-left-radius 15px
     border-top-right-radius 15px
@@ -70,8 +71,10 @@ a
     padding 23px
     overflow-x hidden
     overflow-y hidden
+
+  &__wrapper
+    height 100%
     position relative
-    height 87%
     display flex
     flex 1 1 auto
     flex-direction column
@@ -98,6 +101,44 @@ a
 
 ul, ol > li
   list-style-type none
+
+.loading
+  display flex
+  flex-direction column
+  align-items center
+  justify-content center
+
+  &__text
+    font-size 18px
+    margin-bottom 20px
+    font-family RobotoRegular
+
+.status
+  height 100%
+  display flex
+  flex-direction column
+  font-family RobotoRegular
+  font-size 18px
+  text-align left
+
+  &__title
+    font-size 50px
+    font-weight 700
+    margin-bottom 15px
+
+  &__text, &__reloadPage
+    margin-bottom 5px
+    font-size 18px
+
+  &__errorCode
+    font-size 14px
+    font-weight bold
+    margin-top 10px
+
+  &__svg
+    margin-top 20px
+    width 90px
+    align-self center
 
 @media only screen and (max-width: 430px)
   .chat-bot

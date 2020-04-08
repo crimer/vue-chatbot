@@ -1,5 +1,6 @@
 <template>
   <section class="chat-bot" :class="{ isActive: isChatOpen }">
+
     <div class="chat-bot__header">
       <span class="chat-bot__header__img">
         <svg
@@ -233,10 +234,45 @@
       </span>
       <p class="chat-bot__header__title">ВГУЭС Бот</p>
     </div>
+
     <div class="chat-bot__chat">
-      <Search />
-      <Dialog :dialog="dialog" />
+      <div class="loading"  v-if="!dialog.length">
+        <p class="loading__text">Загрузка...</p>
+        <Loader/>
+      </div>
+
+      <div class="status" v-else-if="status.text">
+        <p class="status__title">Упс...</p>
+        <p class="status__text">{{ status.text }}</p>
+        <p class="status__reloadPage">Перезагрузите страницу</p>
+        <p class="status__errorCode" v-if="status.errorStatusCode">
+          Код ошибки: {{ status.errorStatusCode }}
+        </p>
+        <div class="status__svg">
+          <svg viewBox="0 0 47 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="11" width="33" height="33" rx="8" stroke="black"/>
+            <path d="M17 9C17 7.89543 17.8954 7 19 7H27C28.1046 7 29 7.89543 29 9V11H17V9Z" stroke="black"/>
+            <path d="M42 21C43.1046 21 44 21.8954 44 23L44 31C44 32.1046 43.1046 33 42 33L40 33L40 21L42 21Z" stroke="black"/>
+            <path d="M5 33C3.89543 33 3 32.1046 3 31L3 23C3 21.8954 3.89543 21 5 21L7 21L7 33L5 33Z" stroke="black"/>
+            <rect x="1" y="26" width="2" height="2" fill="black" stroke="black"/>
+            <rect x="44" y="26" width="2" height="2" fill="black" stroke="black"/>
+            <path d="M23 7C23 2 23.5 2 28.5 2" stroke="black"/>
+            <circle cx="30" cy="3" r="2" fill="black" stroke="black"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M30 27C32.2091 27 34 25.2091 34 23C34 20.7909 32.2091 19 30 19C27.7909 19 26 20.7909 26 23C26 25.2091 27.7909 27 30 27ZM30 26C31.6569 26 33 24.6569 33 23C33 21.3431 31.6569 20 30 20C28.3431 20 27 21.3431 27 23C27 24.6569 28.3431 26 30 26Z" fill="black"/>
+            <path d="M33.5 23C33.5 24.933 31.933 26.5 30 26.5V27.5C32.4853 27.5 34.5 25.4853 34.5 23H33.5ZM30 19.5C31.933 19.5 33.5 21.067 33.5 23H34.5C34.5 20.5147 32.4853 18.5 30 18.5V19.5ZM26.5 23C26.5 21.067 28.067 19.5 30 19.5V18.5C27.5147 18.5 25.5 20.5147 25.5 23H26.5ZM30 26.5C28.067 26.5 26.5 24.933 26.5 23H25.5C25.5 25.4853 27.5147 27.5 30 27.5V26.5ZM32.5 23C32.5 24.3807 31.3807 25.5 30 25.5V26.5C31.933 26.5 33.5 24.933 33.5 23H32.5ZM30 20.5C31.3807 20.5 32.5 21.6193 32.5 23H33.5C33.5 21.067 31.933 19.5 30 19.5V20.5ZM27.5 23C27.5 21.6193 28.6193 20.5 30 20.5V19.5C28.067 19.5 26.5 21.067 26.5 23H27.5ZM30 25.5C28.6193 25.5 27.5 24.3807 27.5 23H26.5C26.5 24.933 28.067 26.5 30 26.5V25.5Z" fill="black"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M17 20H19V22H18V24H19V26H17V25H15V26H13V24H14V22H13V20H15V21H17V20Z" fill="black"/>
+            <path d="M19 20H19.5V19.5H19V20ZM17 20V19.5H16.5V20H17ZM19 22V22.5H19.5V22H19ZM18 22V21.5H17.5V22H18ZM18 24H17.5V24.5H18V24ZM19 24H19.5V23.5H19V24ZM19 26V26.5H19.5V26H19ZM17 26H16.5V26.5H17V26ZM17 25H17.5V24.5H17V25ZM15 25V24.5H14.5V25H15ZM15 26V26.5H15.5V26H15ZM13 26H12.5V26.5H13V26ZM13 24V23.5H12.5V24H13ZM14 24V24.5H14.5V24H14ZM14 22H14.5V21.5H14V22ZM13 22H12.5V22.5H13V22ZM13 20V19.5H12.5V20H13ZM15 20H15.5V19.5H15V20ZM15 21H14.5V21.5H15V21ZM17 21V21.5H17.5V21H17ZM19 19.5H17V20.5H19V19.5ZM19.5 22V20H18.5V22H19.5ZM18 22.5H19V21.5H18V22.5ZM18.5 24V22H17.5V24H18.5ZM19 23.5H18V24.5H19V23.5ZM19.5 26V24H18.5V26H19.5ZM17 26.5H19V25.5H17V26.5ZM16.5 25V26H17.5V25H16.5ZM15 25.5H17V24.5H15V25.5ZM15.5 26V25H14.5V26H15.5ZM13 26.5H15V25.5H13V26.5ZM12.5 24V26H13.5V24H12.5ZM14 23.5H13V24.5H14V23.5ZM13.5 22V24H14.5V22H13.5ZM14 21.5H13V22.5H14V21.5ZM13.5 22V20H12.5V22H13.5ZM13 20.5H15V19.5H13V20.5ZM14.5 20V21H15.5V20H14.5ZM17 20.5H15V21.5H17V20.5ZM16.5 20V21H17.5V20H16.5Z" fill="black"/>
+            <path d="M17 34L17.3123 33.6096C17.1423 33.4735 16.9038 33.4632 16.7226 33.584L17 34ZM19.5 36L19.1877 36.3904C19.3317 36.5057 19.5274 36.5322 19.697 36.4596L19.5 36ZM23 34.5L23.2236 34.0528C23.0921 33.987 22.9382 33.9825 22.803 34.0404L23 34.5ZM26 36L25.7764 36.4472C25.9369 36.5275 26.1281 36.5156 26.2774 36.416L26 36ZM29 34L29.2774 33.584C29.1094 33.472 28.8906 33.472 28.7226 33.584L29 34ZM14.2774 36.416L17.2774 34.416L16.7226 33.584L13.7226 35.584L14.2774 36.416ZM16.6877 34.3904L19.1877 36.3904L19.8123 35.6096L17.3123 33.6096L16.6877 34.3904ZM19.697 36.4596L23.197 34.9596L22.803 34.0404L19.303 35.5404L19.697 36.4596ZM22.7764 34.9472L25.7764 36.4472L26.2236 35.5528L23.2236 34.0528L22.7764 34.9472ZM26.2774 36.416L29.2774 34.416L28.7226 33.584L25.7226 35.584L26.2774 36.416ZM28.7226 34.416L31.7226 36.416L32.2774 35.584L29.2774 33.584L28.7226 34.416Z" fill="black"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="chat-bot__wrapper" v-else>
+        <Search />
+        <Dialog :dialog="dialog" />
+      </div>
     </div>
+    
   </section>
 </template>
 
@@ -244,18 +280,20 @@
 import { mapState, mapActions, mapMutations } from "vuex";
 import Search from "@/components/Search.vue";
 import Dialog from "@/components/Dialog.vue";
+import Loader from "@/components/Loader.vue";
 
 export default {
   name: "Chat",
   components: {
     Search,
-    Dialog
+    Dialog,
+    Loader
   },
   data() {
     return {};
   },
   computed: {
-    ...mapState(["isChatOpen", "session", "dialog"])
+    ...mapState(["isChatOpen", "session", "dialog","status"])
   },
   methods: {
     ...mapActions([
@@ -271,21 +309,22 @@ export default {
     this.FETCH_QUESTIONS();
     // если coockie нет то регестрируем новую сессию и записываем id сессии в куки
     if (!this.session) {
-      console.log(`кук нет регестрируем сессию`);
+      // console.log(`кук нет регестрируем сессию`);
       await this.REGISTER_SESSION();
       await this.GET_QUESTION(); // начинаем диалог
+        
     } else {
-      console.log("куки есть", this.session);
+      // console.log("куки есть", this.session);
       // проверяем на срок годности coockie
       const isValid = await this.CHECK_SESSION();
       // если сессия валидна
       if (isValid === "valid") {
-        console.log("session is valid");
+        // console.log("session is valid");
         // подгружаем историю и продолжаем диалог
         this.GET_HISTORY();
       } // если сессия не валидна
       else {
-        console.log("session is not valid");
+        // console.log("session is not valid");
         this.CLEAR_COOKIE();
         // TODO: что-то делать тут
       }

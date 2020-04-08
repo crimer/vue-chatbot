@@ -18,6 +18,14 @@ export default {
     state.session = null;
     VueCookie.delete("session");
   },
+  CLEAR_ALL(state) {
+    state.allQuestions = [];
+    state.dialog = [];
+    state.isChatOpen = false;
+    state.session = null;
+    VueCookie.delete("session");
+    state.status = {};
+  },
   SET_DIALOG(state, payload) {
     state.dialog.push(payload);
   },
@@ -29,5 +37,8 @@ export default {
   },
   BACK(state, step) {
     state.dialog.splice(step);
+  },
+  SET_STATUS(state, status) {
+    state.status = status;
   }
 };

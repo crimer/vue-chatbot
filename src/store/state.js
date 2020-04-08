@@ -9,4 +9,7 @@ export default {
   isChatOpen: false,
   // сессия
   session: VueCookie.get("session") || null,
+  // статус
+  status: {}
+  // status: {text: 'Не удалось загрузить вопросы для поиска', errorStatusCode: 403},
 };
