@@ -1,14 +1,16 @@
 <template>
   <li
     class="block-message"
-    :class="[message.question.user ? 'block-you-message' : 'block-bot-message']">
+    :class="[message.question.user ? 'block-you-message' : 'block-bot-message']"
+  >
     <p class="block-message__text" v-html="message.question.text"></p>
     <ul class="block-message__answers" v-if="message.answers">
       <li
         class="block-message__answer"
         :class="disableLinks"
         v-for="answer in message.answers"
-        :key="answer.id">
+        :key="answer.id"
+      >
         <span
           @click="selectAnswer(answer.id, answer.text, message.step)"
           v-html="answer.text"
@@ -22,7 +24,7 @@
       </p>
       <a
         class="block-message__back"
-        @click="BACK(selfId)"
+        @click="toBackQuestion(selfId)"
         v-if="message.question.user">
         Назад
         <svg
@@ -36,7 +38,8 @@
           height="10px"
           viewBox="0 0 459 459"
           style="enable-background:new 0 0 459 459;"
-          xml:space="preserve">
+          xml:space="preserve"
+        >
           <path
             xmlns="http://www.w3.org/2000/svg"
             d="M178.5,140.25v-102L0,216.75l178.5,178.5V290.7c127.5,0,216.75,40.8,280.5,130.05C433.5,293.25,357,165.75,178.5,140.25z"
@@ -83,6 +86,11 @@ export default {
   methods: {
     ...mapMutations(["SET_DIALOG"]),
     ...mapActions(["SELECT_ANSWER", "BACK"]),
+
+    toBackQuestion(selfId) {
+      this.BACK(selfId);
+    },
+
     selectAnswer(answerId, answerText, messageStep) {
       //  формирую сообщение юзера
       const question = {
@@ -97,6 +105,7 @@ export default {
       this.SET_DIALOG(question);
       // вызываю следующий вопрос
       this.SELECT_ANSWER(answerId);
+      // this.disableLinks();
     }
   }
 };

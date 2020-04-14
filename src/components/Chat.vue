@@ -289,9 +289,6 @@ export default {
     Dialog,
     Loader
   },
-  data() {
-    return {};
-  },
   computed: {
     ...mapState(["isChatOpen", "session", "dialog","status"])
   },

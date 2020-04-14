@@ -6,15 +6,21 @@
         :key="index + 1"
         :message="item"
         :selfId="index + 1"/>
+        <Loader v-if="loadingQuestion"/>
     </ul>
   </div>
 </template>
 
 <script>
 import Message from "@/components/Message.vue";
+import { mapState } from 'vuex';
+import Loader from '@/components/Loader.vue';
 
 export default {
   name: "Dialog",
+  components: {
+    Message,Loader
+  },
   props: {
     dialog: {
       type: Array,
@@ -22,8 +28,8 @@ export default {
       default: []
     }
   },
-  components: {
-    Message
+  computed: {
+    ...mapState(["loadingQuestion"]),
   },
   watch: {
     dialog() {
@@ -33,7 +39,8 @@ export default {
         chatBody.scrollTop = chatBody.scrollHeight;
       });
     }
-  }
+  },
+  
 };
 </script>
 

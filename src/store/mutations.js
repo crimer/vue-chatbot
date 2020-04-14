@@ -40,5 +40,8 @@ export default {
   },
   SET_STATUS(state, status) {
     state.status = status;
-  }
+  },
+  SET_LOADING_QUESTION(state, payload){
+    state.loadingQuestion = payload;
+  },
 };

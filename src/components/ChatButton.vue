@@ -55,9 +55,6 @@ import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "ChatButton",
-  data() {
-    return {};
-  },
   computed: {
     ...mapState(["isChatOpen"])
   },

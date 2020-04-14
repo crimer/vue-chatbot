@@ -111,6 +111,7 @@ export default {
   // questionId аргумент который передаем в action
   async SELECT_ANSWER({ state, commit }, questionId) {
     try {
+      commit("SET_LOADING_QUESTION", true);
       // получаем из state сессию
       const sessionId = state.session;
       // получаем ответ с api
@@ -128,6 +129,8 @@ export default {
       }
     } catch (e) {
       dispatch("statusHandler", "SELECT_ANSWER_ERROR");
+    } finally {
+      commit("SET_LOADING_QUESTION", false);
     }
   },
 

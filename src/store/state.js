@@ -10,6 +10,7 @@ export default {
   // сессия
   session: VueCookie.get("session") || null,
   // статус
-  status: {}
+  status: {},
   // status: {text: 'Не удалось загрузить вопросы для поиска', errorStatusCode: 403},
+  loadingQuestion: false,
 };
