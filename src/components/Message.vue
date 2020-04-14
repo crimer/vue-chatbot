@@ -1,5 +1,6 @@
 <template>
-  <li class="block-message"
+  <li
+    class="block-message"
     :class="[message.question.user ? 'block-you-message' : 'block-bot-message']">
     <p class="block-message__text" v-html="message.question.text"></p>
     <ul class="block-message__answers" v-if="message.answers">
@@ -10,18 +11,37 @@
         :key="answer.id">
         <span
           @click="selectAnswer(answer.id, answer.text, message.step)"
-          v-html="answer.text">
+          v-html="answer.text"
+        >
         </span>
       </li>
     </ul>
     <div class="block-message__footer">
       <p class="block-message__footer__data" v-if="!message.question.user">
-        {{ date  }}
+        {{ date }}
       </p>
-      <a class="block-message__back"
+      <a
+        class="block-message__back"
         @click="BACK(selfId)"
         v-if="message.question.user">
-        Назад <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="13px" height="10px" viewBox="0 0 459 459" style="enable-background:new 0 0 459 459;" xml:space="preserve"><path xmlns="http://www.w3.org/2000/svg" d="M178.5,140.25v-102L0,216.75l178.5,178.5V290.7c127.5,0,216.75,40.8,280.5,130.05C433.5,293.25,357,165.75,178.5,140.25z"/></svg>
+        Назад
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          version="1.1"
+          id="Capa_1"
+          x="0px"
+          y="0px"
+          width="13px"
+          height="10px"
+          viewBox="0 0 459 459"
+          style="enable-background:new 0 0 459 459;"
+          xml:space="preserve">
+          <path
+            xmlns="http://www.w3.org/2000/svg"
+            d="M178.5,140.25v-102L0,216.75l178.5,178.5V290.7c127.5,0,216.75,40.8,280.5,130.05C433.5,293.25,357,165.75,178.5,140.25z"
+          />
+        </svg>
       </a>
     </div>
   </li>
@@ -39,7 +59,7 @@ export default {
       default: {}
     },
     selfId: {
-      tyoe: Number,
+      type: Number,
       required: true,
       default: 0
     }
@@ -56,8 +76,8 @@ export default {
     },
     date() {
       return this.message.date
-        ? this.$options.filters.dateFilter(new Date(this.message.date))
-        : this.$options.filters.dateFilter(new Date());
+        ? this.message.date
+        : this.$options.filters.timeFilter(new Date());
     }
   },
   methods: {

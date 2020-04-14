@@ -1,31 +1,32 @@
 import { normalizeHistory } from "../utils/normalize.histoty";
 import * as api from "../api/questions.api";
 
-const statusHandler = (
-  type,
-  errorStatusCode = null,
-  text = "Извините что-то пошло не так. Перезагрузите страницу",
-) => {
-  commit("CLEAR_ALL");
-  commit("SET_STATUS", { type, text, errorStatusCode });
-};
-
 export default {
-  async FETCH_QUESTIONS({ commit }) {
+  statusHandler(
+    { commit },
+    type,
+    errorStatusCode = null,
+    text = "Извините что-то пошло не так. Перезагрузите страницу"
+  ) {
+    commit("CLEAR_ALL");
+    commit("SET_STATUS", { type, text, errorStatusCode });
+  },
+  async FETCH_QUESTIONS({ commit, dispatch }) {
     try {
       const res = await api.getAllQuestions();
       if (res.status === 200) {
         // вызываем мутацию SET_DIALOG и передаем в нее данные
         commit("SET_ALL_QUESTIONS", res.data);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "FETCH_QUESTIONS_STATUS",
           res.status,
           "Извините не удалось загрузить вопросы для поиска. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("FETCH_QUESTIONS_ERROR");
+      dispatch("statusHandler", "FETCH_QUESTIONS_ERROR");
     }
   },
 
@@ -35,14 +36,15 @@ export default {
       if (res.status === 200) {
         commit("SET_COOKIE", res.data.id);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "REGISTER_SESSION_STATUS",
           res.status,
           "Извините не удалось зарегестрировать сессию. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("REGISTER_SESSION_ERROR");
+      dispatch("statusHandler", "REGISTER_SESSION_ERROR");
     }
   },
 
@@ -53,14 +55,15 @@ export default {
       if (res.status === 200) {
         commit("SET_DIALOG", res.data);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "GET_QUESTION_STATUS",
           res.status,
           "Извините не удалось загрузить следующий вопрос. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("GET_QUESTION_ERROR");
+      dispatch("statusHandler", "GET_QUESTION_ERROR");
     }
   },
 
@@ -71,14 +74,15 @@ export default {
       if (res.status === 200) {
         return res.data.status;
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "CHECK_SESSION_STATUS",
           res.status,
           "Извините не удалось проверить сессию. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("CHECK_SESSION_ERROR");
+      dispatch("statusHandler", "CHECK_SESSION_ERROR");
     }
   },
 
@@ -90,14 +94,15 @@ export default {
         const history = await normalizeHistory(res.data);
         commit("SET_HISTORY", history);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "GET_HISTORY_STATUS",
           res.status,
           "Извините не удалось загрузить сессию. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("GET_HISTORY_ERROR");
+      dispatch("statusHandler", "GET_HISTORY_ERROR");
     }
   },
   // работаем с запросами к api
@@ -114,14 +119,15 @@ export default {
         // commit вызывает мутацию SET_DIALOG в которую передаем res.data в качестве payload
         commit("SET_DIALOG", res.data);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "SELECT_ANSWER_STATUS",
           res.status,
           "Извините не удалось выбрать вопрос. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("SELECT_ANSWER_ERROR");
+      dispatch("statusHandler", "SELECT_ANSWER_ERROR");
     }
   },
 
@@ -137,14 +143,15 @@ export default {
       if (res.status === 200) {
         commit("BACK", backToElement);
       } else {
-        statusHandler(
+        dispatch(
+          "statusHandler",
           "BACK_STATUS",
           res.status,
           "Извините не удалось вернуться на предыдущий вопрос. Перезагрузите страницу"
         );
       }
     } catch (e) {
-      statusHandler("BACK_ERROR");
+      dispatch("statusHandler", "BACK_ERROR");
     }
   }
 };
