@@ -1,8 +1,10 @@
-# Vue chatbot forntend
+# Vue chatbot frontend
 
 Встраиваемый интерфейс чат бота для сайта.
 
-Lasted preview [demo site](http://vvsu-chat-bot.s.frogling.com/vue-chatbot/) [![pipeline status](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/badges/master/pipeline.svg)](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/-/commits/master)
+[![pipeline status](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/badges/master/pipeline.svg)](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/-/commits/master)
+
+Lasted preview [demo site](http://vvsu-chat-bot.s.frogling.com/vue-chatbot/)
 
 ![chatbot screen](doc/chatbot_scr.png)
 
