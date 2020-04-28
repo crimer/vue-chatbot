@@ -14,7 +14,7 @@ pages:
     - yarn config set cache-folder .yarn
     - yarn install 
   script:
-    - npm run build
+    - yarn run build
     - mv public public-vue
     - mv dist public
   artifacts:
