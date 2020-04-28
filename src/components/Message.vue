@@ -25,7 +25,8 @@
       <a
         class="block-message__back"
         @click="toBackQuestion(selfId)"
-        v-if="message.question.user">
+        v-if="message.question.user"
+      >
         Назад
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +106,6 @@ export default {
       this.SET_DIALOG(question);
       // вызываю следующий вопрос
       this.SELECT_ANSWER(answerId);
-      // this.disableLinks();
     }
   }
 };

@@ -138,6 +138,7 @@ export default {
     try {
       // сообщение бота идущее перед сообщением на котором нажали "назад"
       // то к которому нам надо вернутся
+      commit("BACK", selfId);
       const backToElement = selfId - 1;
       // кол-во шагов которых надо сделать чтоб вернуться к нужному сообщению
       const countBack = (state.dialog.length - backToElement) / 2;

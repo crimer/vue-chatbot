@@ -63,7 +63,7 @@ export default {
         return str
           .replace(
             new RegExp(highlight, "ig"),
-            '<span class="highlight">$&</span class="highlight">'
+            '<span class="highlight">$&</span>'
           );
       } else {
         return str;
@@ -83,7 +83,6 @@ export default {
           text: this.selectedItem.text,
           user: true
         },
-        // step: messageStep
       };
       // пихаю сообщение юзера в диалог
       this.SET_DIALOG(question);
