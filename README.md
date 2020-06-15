@@ -1,26 +1,34 @@
-# vue-chatbot
+# Vue chatbot frontend
+
+Встраиваемый интерфейс чат бота для сайта.
+
+[![pipeline status](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/badges/master/pipeline.svg)](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/-/commits/master)
+
+Lasted preview [demo site](http://vvsu-chat-bot.s.frogling.com/vue-chatbot/)
+
+![chatbot screen](doc/chatbot_scr.png)
 
 ## Project setup
-```
-npm install
-or
-yarn install
 
+```bash
+yarn install
 ```
 
 ### Compiles and hot-reloads for development
-```
-npm run serve
-or
+
+```bash
 yarn run serve
 ```
 
 ### Compiles and minifies for production
-```
-npm run build
-or
+
+```bash
 yarn run build
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Links
+
+* [Vue config](https://cli.vuejs.org/config/)
+* [Vue documentation](https://vuejs.org/v2/guide/)
+* [Vue cookbook](https://vuejs.org/v2/cookbook/)
+* [Chat bot documentation](http://vvsubotapi.t.frogling.com/doc/)
