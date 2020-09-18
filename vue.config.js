@@ -3,6 +3,6 @@ module.exports = {
     "vuetify"
   ],
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/vue-chatbot/'
+    ? '/vvsu-chat-bot/vue-chatbot/'
     : '/'
 }
