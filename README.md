@@ -4,7 +4,7 @@
 
 [![pipeline status](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/badges/master/pipeline.svg)](https://git.frogling.com/vvsu-chat-bot/vue-chatbot/-/commits/master)
 
-Lasted preview [demo site](http://vvsu-chat-bot.s.frogling.com/vue-chatbot/)
+Lasted preview [demo site](http://gentlememes.s.frogling.com/vvsu-chat-bot/vue-chatbot/)
 
 ![chatbot screen](doc/chatbot_scr.png)
 
