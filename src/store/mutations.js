@@ -12,7 +12,7 @@ export default {
   },
   SET_COOKIE(state, payload) {
     state.session = payload;
-    VueCookie.set("session", payload, { expires: "15m" });
+    VueCookie.set("session", payload, { expires: "3h" });
   },
   CLEAR_COOKIE(state) {
     state.session = null;
