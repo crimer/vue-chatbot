@@ -10,6 +10,7 @@
         :class="disableLinks"
         v-for="answer in message.answers"
         :key="answer.id"
+        type="disc"
       >
         <span
           @click="selectAnswer(answer.id, answer.text, message.step)"
