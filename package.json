@@ -11,6 +11,8 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@sentry/tracing": "^5.29.2",
+    "@sentry/vue": "^5.29.2",
     "axios": "^0.19.1",
     "az": "^0.2.3",
     "core-js": "^3.4.4",
