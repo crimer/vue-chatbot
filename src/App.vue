@@ -3,6 +3,7 @@
     <div class="vvsu-chat-bot">
       <Chat />
       <ChatButton />
+      <PhoneButton />
     </div>
   </div>
 </template>
@@ -10,12 +11,14 @@
 <script>
 import Chat from "@/components/Chat";
 import ChatButton from "@/components/ChatButton";
+import PhoneButton from "@/components/PhoneButton";
 
 export default {
   name: "App",
   components: {
     Chat,
-    ChatButton
+    ChatButton,
+    PhoneButton
   },
 };
 </script>

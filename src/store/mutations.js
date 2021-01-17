@@ -7,6 +7,9 @@ export default {
     // payload - данные
     state.isChatOpen = payload;
   },
+  TOGGLE_PHONEBUTTON(state, payload) {
+    state.isShowPhoneButton = payload;
+  },
   SET_BOT_STATUS(state, payload) {
     state.botStatus = payload;
   },

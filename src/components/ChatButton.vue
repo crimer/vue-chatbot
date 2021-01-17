@@ -56,12 +56,13 @@ import { mapState, mapMutations } from "vuex";
 export default {
   name: "ChatButton",
   computed: {
-    ...mapState(["isChatOpen"])
+    ...mapState(["isChatOpen", "isShowPhoneButton"])
   },
   methods: {
-    ...mapMutations(["TOGGLE_CHAT"]),
+    ...mapMutations(["TOGGLE_CHAT", "TOGGLE_PHONEBUTTON"]),
     openChat() {
       this.TOGGLE_CHAT(!this.isChatOpen);
+      this.TOGGLE_PHONEBUTTON(!this.isShowPhoneButton);
     }
   }
 };
