@@ -7,8 +7,10 @@ export default {
   dialog: [],
   // чат открыт/закрыт
   isChatOpen: false,
-  // кнопка "оставтье номер телефона" 
+  // кнопка "оставьте номер телефона" 
   isShowPhoneButton: false,
+  // модальное окно
+  isModalPhoneOpen: false,
   // сессия
   session: VueCookie.get("session") || null,
   // статус

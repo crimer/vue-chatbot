@@ -10,6 +10,9 @@ export default {
   TOGGLE_PHONEBUTTON(state, payload) {
     state.isShowPhoneButton = payload;
   },
+  TOGGLE_MODAL(state, payload) {
+    state.isModalPhoneOpen = payload;
+  },
   SET_BOT_STATUS(state, payload) {
     state.botStatus = payload;
   },

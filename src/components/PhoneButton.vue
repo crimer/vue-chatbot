@@ -1,5 +1,5 @@
 <template>
-  <button id="btn__phone" type="button" class="btn__phone" :class="{ isActive: isShowPhoneButton }">
+  <button id="btn__phone" type="button" class="btn__phone" :class="{ isActive: isShowPhoneButton }" @click="openModalPhone()">
   Остались вопросы?</button>
 </template>
 
@@ -9,8 +9,14 @@ import { mapState, mapMutations } from "vuex";
 export default {
   name: "PhoneButton",
   computed: {
-    ...mapState(["isShowPhoneButton"])
+    ...mapState(["isShowPhoneButton", "isModalPhoneOpen"])
   },
+  methods: {
+    ...mapMutations(["TOGGLE_MODAL"]),
+    openModalPhone() {
+      this.TOGGLE_MODAL(!this.isModalPhoneOpen);
+    }
+  }
 };
 </script>
 

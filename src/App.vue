@@ -4,6 +4,7 @@
       <Chat />
       <ChatButton />
       <PhoneButton />
+      <ModalPhone />
     </div>
   </div>
 </template>
@@ -12,13 +13,15 @@
 import Chat from "@/components/Chat";
 import ChatButton from "@/components/ChatButton";
 import PhoneButton from "@/components/PhoneButton";
+import ModalPhone from "@/components/ModalPhone";
 
 export default {
   name: "App",
   components: {
     Chat,
     ChatButton,
-    PhoneButton
+    PhoneButton,
+    ModalPhone
   },
 };
 </script>
