@@ -1,7 +1,7 @@
 <template>
   <div class="body__phone">
   <form class="modal__phone" :class="{ isActive: isModalPhoneOpen }">
-  <h1 class="modal__phone__title">Остались вопросы?   Оставтье номер телефона и мы перезвоним вам</h1>
+  <h1 class="modal__phone__title">Остались вопросы?   Оставьте номер телефона и мы перезвоним вам</h1>
   <div class="modal__phone__number">
     <input class="modal__phone__input " placeholder="+79001235678">
   </div>
