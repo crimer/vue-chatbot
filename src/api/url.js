@@ -9,5 +9,6 @@ export default {
     checkSession: "session/check",
     registerSession: "session/register",
     keys: "chat/keys",
+    phone: "chat/phone",
   }
 };
