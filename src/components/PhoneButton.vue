@@ -9,12 +9,13 @@ import { mapState, mapMutations } from "vuex";
 export default {
   name: "PhoneButton",
   computed: {
-    ...mapState(["isShowPhoneButton", "isModalPhoneOpen"])
+    ...mapState(["isShowPhoneButton", "isModalPhoneOpen", "isChatOpen"])
   },
   methods: {
-    ...mapMutations(["TOGGLE_MODAL"]),
+    ...mapMutations(["TOGGLE_MODAL", "TOGGLE_CHAT"]),
     openModalPhone() {
       this.TOGGLE_MODAL(!this.isModalPhoneOpen);
+      this.TOGGLE_CHAT(!this.isChatOpen);
     }
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <button id="btn__chat" type="button" class="btn__chat" @click="openChat()">
     <svg
-      v-if="!isChatOpen"
+      v-if="!isChatOpen && !isModalPhoneOpen" 
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       version="1.1"
@@ -65,6 +65,7 @@ export default {
       this.TOGGLE_PHONEBUTTON(!this.isShowPhoneButton);
       if (this.isModalPhoneOpen == true) {
         this.TOGGLE_MODAL(!this.isModalPhoneOpen);
+        this.TOGGLE_CHAT(!this.isChatOpen);
       }
     }
   }

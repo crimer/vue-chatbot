@@ -1,13 +1,13 @@
 .body__phone
   align-items center
-  position absolute
-  right 500px
-  bottom 150px
+  position fixed
+  bottom 100px
+
 
 .modal__phone
   visibility hidden
   background-color mainBotBgColor
-  width 400px
+  width 340px
   padding 32px
   border-radius 10px
   box-shadow 0 4px 16px
@@ -16,6 +16,7 @@
 
   &.isActive
     visibility visible
+    position relative
 
   &__title
     text-align center
