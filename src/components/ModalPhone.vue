@@ -6,6 +6,7 @@
     <input class="modal__phone__input " placeholder="+79001235678">
   </div>
   <button class="modal__phone__button">Отправить</button>
+  <button class="modal__phone__button">Отмена</button>
  </form>
  </div>
 </template>
