@@ -49,10 +49,3 @@ export const selectAnswer = (sessionId, questionId) => {
     select: questionId
 });
 };
-
-export const sendPhone = (number, sessionId) => {
-  return http.post(url.paths.phone, {
-    phone: number,
-    session_id: sessionId,
-  });
-};

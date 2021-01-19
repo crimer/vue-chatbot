@@ -3,7 +3,7 @@
   <form class="modal__phone" :class="{ isActive: isModalPhoneOpen }">
   <h1 class="modal__phone__title">Остались вопросы?   Оставьте номер телефона и мы перезвоним вам</h1>
   <div class="modal__phone__number">
-    <input v-model="phone" class="modal__phone__input" placeholder="+79001235678">
+    <input v-model="phone" class="modal__phone__input" placeholder="+79001234567">
   </div>
   <button class="modal__phone__button" @click="sendPhone">Отправить</button>
   <button class="modal__phone__button">Отмена</button>

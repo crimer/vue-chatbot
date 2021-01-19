@@ -67,11 +67,6 @@ export default {
     }
   },
 
-  async SEND_PHONE({ state, commit }, phone) {
-    const sessionId = state.session;
-    const res = await api.sendPhone(phone, sessionId);
-  },
-
   async CHECK_SESSION({ state }) {
     try {
       const sessionId = state.session;
