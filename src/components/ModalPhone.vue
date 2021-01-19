@@ -17,7 +17,7 @@ import { mapState, mapMutations, mapActions} from "vuex";
 export default {
   name: "ModalPhone",
   computed: {
-    ...mapState(["isModalPhoneOpen", "session", "dialog"])
+    ...mapState(["isModalPhoneOpen", "session"])
   },
   data() {
     return {
@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     sendPhone() {
-      fetch(`${process.env.VUE_APP_URL}/chat/phone/?id=${this.session}&phone=${this.phone}&history=${this.dialog}`);
+      fetch(`${process.env.VUE_APP_URL}/chat/phone/?id=${this.session}&phone=${this.phone}`);
     }
   },
 };
