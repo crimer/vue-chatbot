@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     sendPhone() {
-      fetch(`http://127.0.0.1:8000/api/chat/phone/?id=${this.session}&phone=${this.phone}`);
+      fetch(`${process.env.VUE_APP_URL}/chat/phone/?id=${this.session}&phone=${this.phone}`);
     }
   },
 };
