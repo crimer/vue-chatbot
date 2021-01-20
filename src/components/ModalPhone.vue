@@ -5,8 +5,8 @@
   <div class="modal__phone__number">
     <input v-model="phone" class="modal__phone__input" placeholder="+79001234567">
   </div>
-  <button class="modal__phone__button" @click="sendPhone">Отправить</button>
-  <button class="modal__phone__button">Отмена</button>
+  <button type='button' class="modal__phone__button" @click="sendPhone">Отправить</button>
+  <button type='button' class="modal__phone__button" @click="cancel">Отмена</button>
  </form>
  </div>
 </template>
@@ -25,8 +25,17 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(["TOGGLE_MODAL", "TOGGLE_CHAT"]),
     sendPhone() {
       fetch(`${process.env.VUE_APP_URL}chat/phone/?id=${this.session}&phone=${this.phone}`);
+      this.phone = null;
+      this.TOGGLE_MODAL(!this.isModalPhoneOpen);
+      this.TOGGLE_CHAT(!this.isChatOpen);
+    },
+    cancel() {
+      this.phone = null;
+      this.TOGGLE_MODAL(!this.isModalPhoneOpen);
+      this.TOGGLE_CHAT(!this.isChatOpen);
     }
   },
 };
