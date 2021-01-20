@@ -19,7 +19,7 @@ import Loader from '@/components/Loader.vue';
 export default {
   name: "Dialog",
   components: {
-    Message,Loader
+    Message, Loader
   },
   props: {
     dialog: {

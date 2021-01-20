@@ -1,0 +1,53 @@
+.body__phone
+  align-items center
+  position fixed
+  bottom 100px
+
+
+.modal__phone
+  visibility hidden
+  background-color mainBotBgColor
+  width 340px
+  padding 32px
+  border-radius 10px
+  box-shadow 0 4px 16px
+  font-family 'RobotoRegular'
+  letter-spacing 1px
+
+  &.isActive
+    visibility visible
+    position relative
+
+  &__title
+    text-align center
+    margin 0 0 23px 0
+    font-weight normal
+    font-size 13pt
+
+  &__button
+    padding: 10px 20px;
+    border none
+    border-radius 5px
+    font-family 'RobotoRegular'
+    letter-spacing 1px
+    font-size 16xp
+    color #fff
+    background-color mainBlue
+    outline none
+    cursor pointer
+    position relative
+    left 7%
+    margin-right 10%
+
+  &__number
+    position relative
+    margin-bottom 32px
+
+  &__input
+    width 100%
+    padding 0 0 10px 0
+    border none
+    border-bottom 1px solid #e0e0e0
+    background-color transparent
+    outline none
+    color #9e9e9e

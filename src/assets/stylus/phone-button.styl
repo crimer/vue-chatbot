@@ -1,0 +1,34 @@
+.btn__phone
+  z-index 1000
+  width 200px
+  height 60px
+  color #fff
+  font-size 25px
+  border-radius 50px
+  outline none !important
+  background-color mainBlue
+  cursor pointer
+  display flex
+  justify-content center
+  align-items center
+  border none
+  position absolute
+  bottom -80px
+  right 70px
+  font-size 12pt
+  visibility hidden
+
+  &.isActive
+    visibility visible
+
+  &:hover
+    transform scale(1.05)
+
+  svg.close
+    width 20px
+
+  svg.open
+    width 31px
+
+  .done
+    display none

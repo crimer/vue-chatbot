@@ -38,6 +38,7 @@ export const checkSession = sessionId => {
     id: sessionId
   });
 };
+
 export const getAllQuestions = () => {
   return http.post(url.paths.keys);
 };
@@ -46,5 +47,5 @@ export const selectAnswer = (sessionId, questionId) => {
   return http.post(url.paths.select, {
     id: sessionId,
     select: questionId
-  });
+});
 };
