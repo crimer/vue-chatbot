@@ -232,7 +232,7 @@
           </g>
         </svg>
       </span>
-      <p class="chat-bot__header__title">ВГУЭС Бот</p>
+      <p class="chat-bot__header__title">Чат-бот ИЗДО</p>
     </div>
 
     <div class="chat-bot__chat">
