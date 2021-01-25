@@ -1,12 +1,16 @@
 <template>
   <div class="body__phone">
   <form class="modal__phone" :class="{ isActive: isModalPhoneOpen }">
-  <h1 class="modal__phone__title">Остались вопросы?   Оставьте номер телефона и мы перезвоним вам</h1>
+  <h1 class="modal__phone__title">
+  Остались вопросы? 
+  <br>
+  Оставьте номер телефона и мы перезвоним вам
+  </h1>
   <div class="modal__phone__number">
-    <input v-model="phone" class="modal__phone__input" placeholder="+79001234567">
+    <input type="text" title="Используйте только цифры" v-model="phone" class="modal__phone__input" placeholder="79001234567" pattern="\d+">
   </div>
   <button type='button' class="modal__phone__button" @click="sendPhone">Отправить</button>
-  <button type='button' class="modal__phone__button" @click="cancel">Отмена</button>
+  <button type='button' class="modal__phone__button__back" @click="cancel">Отмена</button>
  </form>
  </div>
 </template>
