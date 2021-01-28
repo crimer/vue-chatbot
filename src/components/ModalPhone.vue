@@ -7,7 +7,7 @@
   Оставьте номер телефона и мы перезвоним вам
   </h1>
   <div class="modal__phone__number">
-    <input type="text" title="Используйте только цифры" v-model="phone" class="modal__phone__input" placeholder="79001234567" pattern="\d+">
+    <input type="text" title="Используйте только цифры" v-model="phone" class="modal__phone__input" placeholder="89001234567" pattern="\d+">
   </div>
   <button type='button' class="modal__phone__button" @click="sendPhone">Отправить</button>
   <button type='button' class="modal__phone__button__back" @click="cancel">Отмена</button>
