@@ -1,0 +1,2139 @@
+------------
+File: botapi/app/Admin.php 
+
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Admin extends Model
+{
+    // Название таблицы с ключами администраторов
+    protected $table = 'admin_keys';
+
+    // Скрываем данные поля для вывода в JSON
+    protected $hidden = ['created_at', 'updated_at'];
+}
+
+------------
+File: botapi/app/Answer.php 
+
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+/*
+*   Ответ на вопрос
+*/
+class Answer extends Model
+{
+    // Скрываем данные поля для вывода в JSON
+    protected $hidden = ['created_at', 'updated_at', 'question_id', 'sort'];
+
+    // Получение массива ключевых слов
+    public function keysArray() {
+        // Возвращаем пустой массив, если нет ключей
+        if (empty($this->keys)) return array();
+        return explode(" ", $this->keys);
+    }
+}
+
+------------
+File: botapi/app/Console/Commands/ClearSessions.php 
+
+
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use App\Session;
+
+class ClearSessions extends Command
+{
+    /**
+     * Название команды
+     *
+     * @var string
+     */
+    protected $signature = 'sessions:clear';
+
+    /**
+     * Описание команды
+     *
+     * @var string
+     */
+    protected $description = 'Clear sessions table and remove all histories';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Выполнение команды
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        if ($this->confirm('This command remove ALL sessions and may disrupt the work of current users. Are you sure to continue?')) {
+            $count = Session::all()->count();
+
+            $this->info('Sessions count: ' . $count);
+            $this->info('Removing...');
+            DB::table('sessions')->delete();
+            $this->info('Done');
+        } else {
+            $this->info('Canceled');
+        }
+    }
+}
+
+------------
+File: botapi/app/Console/Commands/InfoSessions.php 
+
+
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Session;
+use App\History;
+
+class InfoSessions extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'sessions:info';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Get information about sessions table (and histories)';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $count_sessions = Session::all()->count();
+        $this->info('Sessions count: ' . $count_sessions);
+
+        $count_histories = History::all()->count();
+        $this->info('Histories count: ' . $count_histories);
+
+    }
+}
+
+------------
+File: botapi/app/Console/Kernel.php 
+
+
+<?php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    /**
+     * Команды для Artisan представленные сервером
+     *
+     * @var array
+     */
+    protected $commands = [
+        //
+    ];
+
+    /**
+     * Запланированное выполнение команд сервером
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // $schedule->command('inspire')
+        //          ->hourly();
+    }
+
+    /**
+     * Внешняя регистрация комманд для сервера.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+
+------------
+File: botapi/app/Exceptions/Handler.php 
+
+
+<?php
+
+namespace App\Exceptions;
+
+use Exception;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * Список исключений, которые будут игнорироваться
+     *
+     * @var array
+     */
+    protected $dontReport = [
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed for validation exceptions.
+     *
+     * @var array
+     */
+    protected $dontFlash = [
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Report or log an exception.
+     *
+     * @param  \Exception  $exception
+     * @return void
+     */
+    public function report(Exception $exception)
+    {
+        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+            app('sentry')->captureException($exception);
+        }
+
+        parent::report($exception);
+    }
+
+    /**
+     * Вывод исключения в виде HTTP ответа
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Exception  $exception
+     * @return \Illuminate\Http\Response
+     */
+    public function render($request, Exception $exception)
+    {
+        return parent::render($request, $exception);
+        
+        // JSON ERROR (for now is off)
+        if ($exception->getStatusCode()) $message = $exception->getStatusCode();
+        else $message = $exception->getMessage();
+        return response()->json(['error' => $message]);
+    }
+}
+
+------------
+File: botapi/app/History.php 
+
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+/*
+*  История вопросов пользователя
+*/
+class History extends Model
+{
+    // Скрываем данные поля для вывода в JSON
+    protected $hidden = ['id', 'created_at', 'updated_at'];
+}
+
+------------
+File: botapi/app/Http/Controllers/AdminController.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Admin;
+use App\Question;
+use App\Answer;
+use App\PhoneNumber;
+
+/*
+*   Контроллер для управления чат ботом (нап. через админ панель)
+*/
+class AdminController extends Controller
+{
+    /**
+     * @api {get} /admin/key/check Проверка ключа
+     * @apiName CheckKey
+     * @apiGroup Admin
+     * @apiDescription Метод проверки ключа администратора
+     * 
+     * @apiParam {String} key Ключ администратора (будет проверен)
+     * 
+     * @apiSuccess {String} status Статус проверки
+     * @apiSuccessExample {json} Пример валидного ключа
+     *     {
+     *       "status": "valid"
+     *     }
+     * @apiSuccessExample {json} Пример невалидного ключа
+     *     {
+     *       "status": "invalid"
+     *     }
+     */
+    public function key_check(Request $request) {
+        // Получаем id из запроса
+        $key = $request->input('key');
+        if (!$key) {
+            Log::warning('Method admin/key/check, not enough parameters. Where "key"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+
+        // Получаем экземпляр ключа
+        $a = Admin::where('key', $key)->first();
+        // Проверяем наличие ключа в БД
+        if (!$a) return response()->json(['status' => 'invalid']);
+        // Если все хорошо, возвращаем valid
+        return response()->json(['status' => 'valid']);
+    }
+
+    /**
+     * @api {get} /admin/key/info Получение информации о ключе
+     * @apiName GetKeyInfo
+     * @apiGroup Admin
+     * @apiDescription Метод получения информации о ключе
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} key_id Идентификатор ключа, о котором требуется получить информацию
+     * 
+     * @apiSuccess {Key} key Структура ключа
+     */
+    public function key_info(Request $request) {
+        // Получаем key_id из запроса
+        $key_id = intval($request->input('key_id'));
+        if (!$key_id) {
+            Log::warning('Method admin/key/info, not enough parameters. Where "key_id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем ключ
+        $admin = Admin::where('id', $key_id)->first();
+
+        // Если ключ не найден
+        if (!$admin) {
+            Log::warning('Method admin/key/info, key with id ' . $key_id . ' not found');
+            return response()->json(['error' => 'key not found'], 400);
+        }
+
+        return response()->json(['key' => $admin], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/key/list Получение списка всех ключей
+     * @apiName GetKeyList
+     * @apiGroup Admin
+     * @apiDescription Метод получения информации о всех ключах
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Keys} keys Массив из структур ключа
+     */
+    public function key_list(Request $request) {
+        // Получаем все ключи
+        $admins = Admin::all();
+        // Подсчитываем количество таких ключей
+        $count = Admin::all()->count();
+
+        return response()->json(['keys' => $admins, 'count' => $count], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/phone/list Получение списка номеров телефона
+     * @apiName GetPhoneList
+     * @apiGroup Admin
+     * @apiDescription Метод получения списка оставленных телефонов
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Phone} phone Массив из структура номера телефона
+     */
+    public function phone_list(Request $request) {
+        // Получаем все номера телефонов
+        $phones = PhoneNumber::all();
+        // Подсчитываем количество таких ключей
+        $count = PhoneNumber::all()->count();
+
+        return response()->json(['phones' => $phones, 'count' => $count], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/phone/remove Удаление номера телефона
+     * @apiName RemovePhone
+     * @apiGroup Admin
+     * @apiDescription Метод удаления номера телефона
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} phone_id Идентификатор номера телефона, который нужно удалить
+     * 
+     * @apiSuccess {Status} status Успешность операции (ok / fail)
+     */
+    public function phone_remove(Request $request) {
+        // Получаем phone_id из запроса
+        $phone_id = intval($request->input('phone_id'));
+        if (!$phone_id) {
+            Log::warning('Method admin/phone/remove, not enough parameters. Where "phone_id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+
+        // Получаем номер телефона
+        $phone = PhoneNumber::where('id', $phone_id)->first();
+
+        // Если номер телефона не найден
+        if (!$phone) {
+            Log::warning('Method admin/phone/remove, phone with id ' . $phone_id . ' not found');
+            return response()->json(['status' => 'fail', 'error' => 'phone not found'], 400);
+        }
+
+        // Удаляем номер телефона
+        $phone->delete();
+
+        // Если все хорошо, возвращаем ok
+        return response()->json(['status' => 'ok'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/phone/remove/all Удаление всех номеров телефона
+     * @apiName RemovePhoneAll
+     * @apiGroup Admin
+     * @apiDescription Метод удаления всех номеров телефона
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Status} status Успешность операции (ok / fail)
+     */
+    public function phone_remove_all(Request $request) {
+        // Удаляем все номера телефонов
+        PhoneNumber::truncate();
+        // Если все хорошо, возвращаем ok
+        return response()->json(['status' => 'ok'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/key/create Регистрация нового ключа
+     * @apiName CreateKey
+     * @apiGroup Admin
+     * @apiDescription Метод регистрации нового ключа
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Key} key Структура ключа
+     */
+    public function key_create(Request $request) {
+        // Генерируем рандомный ключ
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $key = '';
+        for ($i = 0; $i < 6; $i++) { 
+            $index = rand(0, strlen($characters) - 1); 
+            $key .= $characters[$index]; 
+        }
+        Log::debug('Generate new admin key ['.$key.']');
+
+        // Создаем экземпляр ключа
+        $admin = new Admin;
+        $admin->key = $key;
+
+        // Записываем ключ в БД
+        $admin->save();
+        Log::debug('Save admin key to DB ['.$key.']');
+
+        return response()->json(['key' => $admin], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/key/remove Удаление ключа
+     * @apiName RemoveKey
+     * @apiGroup Admin
+     * @apiDescription Метод удаления ключа
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} key_id Идентификатор ключа, который нужно удалить
+     * 
+     * @apiSuccess {Status} status Успешность операции (ok / fail)
+     */
+    public function key_remove(Request $request) {
+        // Получаем key_id из запроса
+        $key_id = intval($request->input('key_id'));
+        if (!$key_id) {
+            Log::warning('Method admin/key/remove, not enough parameters. Where "key_id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+
+        // Получаем ключ
+        $admin = Admin::where('id', $key_id)->first();
+
+        // Если ключ не найден
+        if (!$admin) {
+            Log::warning('Method admin/key/remove, key with id ' . $key_id . ' not found');
+            return response()->json(['status' => 'fail', 'error' => 'key not found'], 400);
+        }
+
+        // Удаляем ключ
+        $admin->delete();
+
+        // Если все хорошо, возвращаем ok
+        return response()->json(['status' => 'ok'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/tree Получение базы вопросов-ответов в виде дерева
+     * @apiName GetChatTree
+     * @apiGroup Admin
+     * @apiDescription Метод получения всей базы вопросов-ответов в виде дерева
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Tree} tree Деревовидная структура с вопросами и ответами
+     */
+    public function chat_tree(Request $request) {
+        // Получение первого вопроса
+        $tree = Question::where('id', 1)->first();
+        // Запускаем развертку дерева (дорогая операция, кстати)
+        AdminController::chat_tree_expand($tree);
+
+        return response()->json(['tree' => $tree], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    // Рекурсивная функция развертки дерева
+    private function chat_tree_expand($tree) {
+        // Получение ответов для вопроса
+        $answers = Answer::where('question_id', $tree['id'])->get();
+        // Перебор всех ответов
+        foreach($answers as $answer) {
+            // Получение вопроса, на который ссылается ответ
+            $question = Question::where('id', $answer['next_question_id'])->first();
+            // Если такой вопрос есть, запускем эту же функцию для него
+            if($question != null)
+                AdminController::chat_tree_expand($question);
+            // Приписываем вопрос к ответу
+            $answer['question'] = $question;
+        }
+        // Если массив ответов не пустой - припысываем его к вопросу, иначе возвращаем null
+        if (count($answers))
+            $tree['answers'] = $answers;
+        else
+            $tree['answers'] = null;
+        // Количество ответов в массиве
+        $tree['count'] = count($answers);
+    }
+
+    /**
+     * @api {get} /admin/chat/questions Получение базы вопросов
+     * @apiName GetQuestions
+     * @apiGroup Admin
+     * @apiDescription Метод получения всей базы вопросов
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Questions} questions Массив структур вопросов c массивами ответов
+     */
+    public function chat_questions(Request $request) {
+        // Получение всех вопросов
+        $questions = Question::all();
+        // Перебор
+        foreach($questions as $question) {
+            // Получение вопроса, на который ссылается ответ
+            $answers = Answer::where('question_id', $question['id'])->get();
+            // Перебор всех ответов и конвертация ключевых слов в массив ключевых слов
+            foreach($answers as &$answer) {
+                $answer->keys = $answer->keysArray();
+            }
+            // Приписываем массив ответов к вопросу
+            $question['answers'] = $answers;
+            // Записываем количество найденых ответов
+            $answers_count = count($answers);
+            $question['count'] = $answers_count;
+        }
+
+        // Подсчитываем количество вопросов
+        $count = count($questions);
+
+        return response()->json(['questions' => $questions, 'count' => $count], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/edit/question Редактирование вопроса
+     * @apiName EditQuestion
+     * @apiGroup Admin
+     * @apiDescription Метод редактирования вопроса
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} id Идентификатор вопроса
+     * @apiParam {String} text Содержание вопроса
+     * 
+     * @apiSuccess {Question} question Структура добавленного вопроса
+     */
+    public function chat_question_edit(Request $request) {
+        // Получаем id из запроса
+        $id = intval($request->input('id'));
+        if (!$id) {
+            Log::warning('Method admin/chat/edit/question, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем вопрос
+        $question = Question::where('id', $id)->first();
+
+        // Если вопрос не найден
+        if (!$question) {
+            Log::warning('Method admin/chat/edit/question, question with id ' . $id . ' not found');
+            return response()->json(['error' => 'question not found'], 400);
+        }
+
+        // Если задан параметр text, обновляем его
+        $text = $request->input('text');
+        if (!empty($text)) {
+            $question->text = $text;
+        }
+
+        // Сохраняем вопрос
+        $question->save(); // TODO: Проверка успешности
+
+        return response()->json(['question' => $question], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/add/question Добавление вопроса
+     * @apiName AddQuestion
+     * @apiGroup Admin
+     * @apiDescription Метод редактирования вопроса
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {String} text Содержание вопроса
+     * 
+     * @apiSuccess {Question} question Структура созданного вопроса
+     */
+    public function chat_question_add(Request $request) {
+        // Получаем text из запроса
+        $text = $request->input('text');
+        if (!$text) {
+            Log::warning('Method admin/chat/add/question, not enough parameters. Where "text"?');
+            return response()->json(['error' => 'not enough parameters']);
+        }
+
+        // Создаем экзепляр вопроса
+        $question = new Question;
+
+        // Если задан параметр text, добавляем его
+        $text = $request->input('text');
+        if (!empty($text)) {
+            $question->text = $text;
+        }
+
+        // Записываем вопрос в БД
+        $question->save(); // TODO: Проверка успешности
+        Log::debug('Save question to DB ['.$question->id.']');
+
+        return response()->json(['question' => $question], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/answers Получение базы ответов
+     * @apiName GetAnswers
+     * @apiGroup Admin
+     * @apiDescription Метод получения всей базы ответов
+     * 
+     * @apiParam {String} key Ключ администратора
+     * 
+     * @apiSuccess {Answers} answers Массив структур ответов
+     */
+    public function chat_answers(Request $request) {
+        // Получение всех ответов
+        $answers = Answer::all();
+        // Перебор всех ответов и конвертация ключевых слов в массив ключевых слов
+        foreach($answers as &$answer) {
+            $answer->keys = $answer->keysArray();
+        }
+        // Подсчитываем количество ответов
+        $count = count($answers);
+
+        return response()->json(['answers' => $answers, 'count' => $count], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/edit/answer Редактирование ответа
+     * @apiName EditAnswer
+     * @apiGroup Admin
+     * @apiDescription Метод редактирования ответа
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} id Идентификатор ответа
+     * @apiParam {String} text Содержание ответа
+     * @apiParam {String} keys Ключевые слова через пробел для поиска (использовать специальное слово "null" для удаления)
+     * @apiParam {Int} question_id Принадлежность к вопросу
+     * @apiParam {Int} next_question_id К какому вопросу ведет
+     * @apiParam {Int} sort Вес при сортировке в выдаче
+     * 
+     * @apiSuccess {Answer} Answer Структура измененного ответа
+     */
+    public function chat_answer_edit(Request $request) {
+        // Получаем id из запроса
+        $id = intval($request->input('id'));
+        if (!$id) {
+            Log::warning('Method admin/chat/edit/answer, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем ответ
+        $answer = Answer::where('id', $id)->first();
+
+        // Если ответ не найден
+        if (!$answer) {
+            Log::warning('Method admin/chat/edit/answer, answer with id ' . $id . ' not found');
+            return response()->json(['error' => 'answer not found'], 400);
+        }
+
+        // Если задан параметр text, обновляем его
+        $text = $request->input('text');
+        if (!empty($text)) {
+            $answer->text = $text;
+        }
+
+        // Если задан параметр question_id, обновляем его
+        $question_id = intval($request->input('question_id'));
+        if (!empty($question_id)) {
+            $answer->question_id = $question_id;
+        }
+
+        // Если задан параметр next_question_id, обновляем его
+        $next_question_id = intval($request->input('next_question_id'));
+        if (!empty($next_question_id)) {
+            $answer->next_question_id = $next_question_id;
+        }
+
+        // Если задан параметр sort, обновляем его
+        $sort = intval($request->input('sort'));
+        if (!empty($sort)) {
+            $answer->sort = $sort;
+        }
+
+        // Если задан параметр keys, обновляем его
+        $keys = $request->input('keys');
+        if (!empty($keys)) {
+            if ($keys == "null") {
+                // Удаляем ключи при использовании спец слова
+                $answer->keys = null;
+            } else {
+                // Указываем новые ключи
+                $answer->keys = $keys;
+            }
+        }
+
+        // Сохраняем ответ
+        $answer->save(); // TODO: Проверка успешности
+
+        return response()->json(['answer' => $answer], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/add/answer Добавление ответа
+     * @apiName AddAnswer
+     * @apiGroup Admin
+     * @apiDescription Метод добавления ответа
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {String} text Содержание ответа
+     * @apiParam {String} keys Ключевые слова через пробел для поиска
+     * @apiParam {Int} question_id Принадлежность к вопросу
+     * @apiParam {Int} next_question_id К какому вопросу ведет
+     * @apiParam {Int} sort Вес при сортировке в выдаче
+     * 
+     * @apiSuccess {Answer} Answer Структура добавленного ответа
+     */
+    public function chat_answer_add(Request $request) {
+        // Создаем ответ
+        $answer = new Answer;
+
+        // Если задан параметр text, добавляем его
+        $text = $request->input('text');
+        if (!empty($text)) {
+            $answer->text = $text;
+        }
+
+        // Если задан параметр question_id, добавляем его
+        $question_id = intval($request->input('question_id'));
+        if (!empty($question_id)) {
+            $answer->question_id = $question_id;
+        }
+
+        // Если задан параметр next_question_id, добавляем его
+        $next_question_id = intval($request->input('next_question_id'));
+        if (!empty($next_question_id)) {
+            $answer->next_question_id = $next_question_id;
+        }
+
+        // Если задан параметр sort, добавляем его
+        $sort = intval($request->input('sort'));
+        if (!empty($sort)) {
+            $answer->sort = $sort;
+        }
+
+        // Если задан параметр keys, добавляем его
+        $keys = $request->input('keys');
+        if (!empty($keys)) {
+            $answer->keys = $keys;
+        }
+
+        // Сохраняем ответ
+        try{
+            $answer->save();
+        } catch(\Exception $e) {
+            Log::warning('Method admin/chat/add/answer has problem on DB add, check please: '.$answer.'');
+            return response()->json(['error' => 'unrecoverable error, check relative keys'], 400);
+        }
+        Log::debug('Save answer to DB ['.$answer->id.']');
+
+        return response()->json(['answer' => $answer], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/remove/question Удаление вопроса
+     * @apiName RemoveQuestion
+     * @apiGroup Admin
+     * @apiDescription Метод удаления вопроса
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} id Идентификатор вопроса, который нужно удалить
+     * 
+     * @apiSuccess {Status} status Успешность операции (ok / fail)
+     */
+    public function chat_question_remove(Request $request) {
+        // Получаем id из запроса
+        $id = intval($request->input('id'));
+        if (!$id) {
+            Log::warning('Method admin/chat/remove/question, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем вопрос
+        $question = Question::where('id', $id)->first();
+
+        // Если вопрос не найден
+        if (!$question) {
+            Log::warning('Method admin/chat/remove/question, question with id ' . $id . ' not found');
+            return response()->json(['status' => 'fail', 'error' => 'question not found'], 400);
+        }
+
+        // Удаляем вопрос
+        $question->delete();
+
+        return response()->json(['status' => 'ok'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /admin/chat/remove/answer Удаление ответа
+     * @apiName RemoveAnswer
+     * @apiGroup Admin
+     * @apiDescription Метод удаления ответа
+     * 
+     * @apiParam {String} key Ключ администратора
+     * @apiParam {Int} id Идентификатор ответа, который нужно удалить
+     * 
+     * @apiSuccess {Status} status Успешность операции (ok / fail)
+     */
+    public function chat_answer_remove(Request $request) {
+        // Получаем id из запроса
+        $id = intval($request->input('id'));
+        if (!$id) {
+            Log::warning('Method admin/chat/remove/answer, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем ответ
+        $answer = Answer::where('id', $id)->first();
+
+        // Если ответ не найден
+        if (!$answer) {
+            Log::warning('Method admin/chat/remove/answer, answer with id ' . $id . ' not found');
+            return response()->json(['status' => 'fail', 'error' => 'answer not found'], 400);
+        }
+
+        // Удаляем ответ
+        $answer->delete();
+
+        return response()->json(['status' => 'ok'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+}
+------------
+File: botapi/app/Http/Controllers/ChatController.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Question;
+use App\History;
+use App\Answer;
+
+/*
+*   Контроллер для работы с частом
+*/
+class ChatController extends Controller
+{
+    /**
+     * @api {get} /chat/get Получение диалога
+     * @apiName GetChat
+     * @apiGroup Chat
+     * @apiDescription Метод получения текущего диалога
+     * 
+     * @apiParam {String} id Ключ сессии
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83"
+     *     }
+     * 
+     * @apiSuccess {Question} question Структура вопроса
+     * @apiSuccess {Int} step Текущая глубина диалога
+     * @apiSuccess {Answers} answers Массив ответов, которые может выбрать пользователь
+     * @apiSuccessExample {json} Пример ответа
+     *     {
+     *        "question": {
+     *          "id": 1,
+     *          "text": "Здравствуйте, чем мы можем вам помочь?",
+     *          "user": false
+     *        },
+     *        "step": 1,
+     *        "answers": [{
+     *          "id": 19,
+     *          "text": "Вопросы по поступлению",
+     *          "keys": null
+     *        }]
+     *     }
+     * @apiSuccessExample {json} Пример ответа с просроченной сессией
+     *     {
+     *       "error": "session not valid"
+     *     }
+     */
+    public function get(Request $request) {
+        // Получаем сессию из ранее уже вызванного посредника (в роутах)
+        $s = $request->get('session');
+        // Получаем последний элемент истории
+        $current_history = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->first();
+        // Подсчитываем количество элементов истории у сессии
+        $count = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->count();
+        // Получем данные о вопросы
+        $question = Question::where('id', $current_history->question_id)->first();
+        // Для идентификации происхождения вопроса на клиенте
+        $question['user'] = false;
+        // Получаем привязанные ответы на вопрос
+        $answers = Answer::where('question_id', $question->id)->orderBy('sort')->get();
+
+        Log::info('Get question '.$question->id.' for ['.$s->session_id.'] from history, current step '.$count.'');
+
+        return response()->json(['question' => $question, 'step' => $count, 'answers' => $answers], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @api {get} /chat/select Выбор ответа
+     * @apiName SelectAnswer
+     * @apiGroup Chat
+     * @apiDescription Метод выбора ответа
+     *
+     * @apiParam {String} id Ключ сессии
+     * @apiParam {Int} select id ответа answer
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83",
+     *       "select": 19
+     *     }
+     *
+     * @apiSuccess {Question} question Структура вопроса
+     * @apiSuccess {Int} step Текущая глубина диалога
+     * @apiSuccess {Answers} answers Массив ответов, которые может выбрать пользователь
+     * @apiSuccessExample {json} Пример ответа
+     *     {
+     *        "question": {
+     *          "id": 17,
+     *          "text": "Что вас интересует?",
+     *          "user": false
+     *        },
+     *        "step": 1,
+     *        "answers": [
+     *        {
+     *          "id": 20,
+     *          "text": "Какой распорядок работы приёмной комиссии?",
+     *          "keys":"распорядок работа комиссия банан"
+     *        },
+     *        {
+     *          "id": 21,
+     *          "text": "Какие сроки приема документов для поступления?",
+     *          "keys":"срок прием документ сдача поступление"
+     *        }]
+     *     }
+     * @apiSuccessExample {json} Пример ответа с просроченной сессией
+     *     {
+     *       "error": "session not valid"
+     *     }
+     */
+    public function select(Request $request) {
+        // Получаем сессию из ранее уже вызванного посредника (в роутах)
+        $s = $request->get('session');
+
+        // Получаем id ответа из запроса
+        $select = intval($request->input('select'));
+        if (!$select) {
+            Log::warning('Method chat/select, not enough parameters, session ['.$s->session_id.']. Where "select"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем ответ из БД
+        $answer = Answer::where('id', $select)->first();
+        // Проверяем существование ответа
+        if (!$answer) {
+            Log::warning('Method chat/select, incorrect selection, session ['.$s->session_id.']. Can\'t find answer with id '.$select.'');
+            return response()->json(['error' => 'incorrect selection'], 400);
+        }
+        // Проверяем, указан ли у ответа следующий вопрос
+        if ($answer->next_question_id == null) {
+            Log::warning('Method chat/select, answer has no next question, session ['.$s->session_id.']. Answer id is '.$answer->id.'');
+            return response()->json(['error' => 'answer has no next question'], 400);
+        }
+
+        // Записываем выбранный ответ в историю
+        // Получаем последний элемент истории
+        $current_history = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->first();
+        // Указываем ответ
+        $current_history->answer_id = $answer->id;
+        // Сохраняем историю
+        $current_history->save();
+
+        // Создаем историю
+        $history = new History;
+        // Привязываем к сессии
+        $history->session_id = $s->id;
+        // Указываем вопрос
+        $history->question_id = $answer->next_question_id;
+        // Сохраняем историю
+        $history->save();
+
+        Log::info('Select answer '.$answer->id.' for ['.$s->session_id.'] with next question '.$answer->next_question_id.'');
+
+        return ChatController::get($request);
+    }
+
+    /**
+     * @api {get} /chat/back Возврат на вопрос выше
+     * @apiName BackChat
+     * @apiGroup Chat
+     * @apiDescription Метод возврата на вопрос выше
+     *
+     * @apiParam {String} id Ключ сессии
+     * @apiParam {Int} step Количество шагов (по умолчанию - 1)
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83",
+     *       "step": 3
+     *     }
+     *
+     * @apiSuccess {Question} question Структура вопроса
+     * @apiSuccess {Int} step Текущая глубина диалога
+     * @apiSuccess {Answers} answers Массив ответов, которые может выбрать пользователь
+     * @apiSuccessExample {json} Пример ответа
+     *     {
+     *        "question": {
+     *          "id": 1,
+     *          "text": "Здравствуйте, чем мы можем вам помочь?",
+     *          "user": false
+     *        },
+     *        "step": 1,
+     *        "answers": [{
+     *          "id": 19,
+     *          "text": "Вопросы по поступлению",
+     *          "keys": null
+     *        }]
+     *     }
+     * @apiSuccessExample {json} Пример ответа с просроченной сессией
+     *     {
+     *       "error": "session not valid"
+     *     }
+     */
+    public function back(Request $request, $step = 0) {
+        // Если step тут равен 0, значит его еще не пытались получить из request
+        if($step == 0) $step = intval($request->input('step', 1));
+        // step - количесво возвратов
+        $step--;
+
+        // Получаем сессию из ранее уже вызванного посредника (в роутах)
+        $s = $request->get('session');
+        // Получаем последний элемент истории
+        $current_history = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->first();
+        // Подсчитываем количество элементов истории у сессии
+        $count = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->count();
+        // Удаляем элемент, если он не последний
+        if ($count > 1) $current_history->delete();
+
+        // Получаем новый последний элемент истории
+        $new_history = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->first();
+        // Удаляем выбор ответа
+        $new_history->answer_id = null;
+        $new_history->save();
+
+        // Если требуется еще сделать возвраты - вызываем этот метод
+        if ($step > 0 && $count > 1) {
+            Log::info('Back question for ['.$s->session_id.'], current question id '.$new_history->question_id.', recursion step '.$step.'');
+            return ChatController::back($request, $step);
+        }
+        // Если возвраты не требуются, выдаем ответ
+        else {
+            Log::info('Back question for ['.$s->session_id.'], current question id '.$new_history->question_id.'');
+            return ChatController::get($request);
+        }
+    }
+
+    /**
+     * @api {get} /chat/history История диалога сессии
+     * @apiName HistoryChat
+     * @apiGroup Chat
+     * @apiDescription Метод получения истории диалога
+     *
+     * @apiParam {String} id Ключ сессии
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83"
+     *     }
+     *
+     * @apiSuccess {History} question Структура истории (массив вопросов и ответов)
+     * @apiSuccess {Int} step Текущая глубина диалога
+     * @apiSuccessExample {json} Пример ответа
+     *     {
+     *        "history": [
+     *          {
+     *            "question": {
+     *              "id": 1,
+     *              "text": "Здравствуйте, чем мы можем вам помочь?",
+     *              "user": false
+     *            },
+     *            "selected": null,
+     *            "answers": [
+     *              {
+     *                "id": 19,
+     *                "text": "Вопросы по поступлению",
+     *                "keys": null
+     *              }],
+     *            "date": "06.04.2020 20:50:50",
+     *            "step":1
+     *          }
+     *        ],
+     *        "step":1
+     *     }
+     * @apiSuccessExample {json} Пример ответа с просроченной сессией
+     *     {
+     *       "error": "session not valid"
+     *     }
+     */
+    public function history(Request $request) {
+        // Получаем сессию из ранее уже вызванного посредника (в роутах)
+        $s = $request->get('session');
+        // Получаем историю
+        $history = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->get();
+        // Подсчитываем количество элементов истории у сессии
+        $count = History::where('session_id', $s->id)->orderBy('created_at', 'DESC')->count();
+
+        $data = [];
+        $local_step = 1;
+        foreach($history as &$element) {
+            $info = [];
+            // Получем данные о вопросе
+            $question = Question::where('id', $element->question_id)->first();
+            $info['question'] = $question;
+            // Для идентификации происхождения вопроса на клиенте
+            $info['question']['user'] = false;
+
+            // Получаем данные о выбранном ответе
+            $answer = Answer::where('id', $element->answer_id)->first();
+            $info['selected'] = $answer;
+
+            // Получаем данные об всех ответах для вопроса
+            $answers = Answer::where('question_id', $question->id)->orderBy('sort')->get();
+            $info['answers'] = $answers;
+
+            // Вывод даты вопроса
+            $info['date'] = $element->created_at->format('H:i:s');
+
+            // Уровень вопроса
+            $info['step'] = ($count - $local_step) + 1;
+            $local_step++;
+
+            // Записываем вопрос и ответ в массив как отдельный элемент
+            $data[] = $info;
+        }
+
+        Log::info('Get history for ['.$s->session_id.'], current step '.$count.'');
+
+        return response()->json(['history' => array_reverse($data), 'step' => $count,], 200, [], JSON_UNESCAPED_UNICODE);
+
+    }
+
+    /**
+     * @api {get} /chat/keys Получение ключевых слов
+     * @apiName KeysChat
+     * @apiGroup Chat
+     * @apiDescription Метод получения всех вопросов и ключевых слов для поиска
+     *
+     * @apiSuccess {Answers} answers Массив ответов, которые может выбрать пользователь
+     * @apiSuccessExample {json} Пример ответа
+     *     {
+     *        "answers": [
+     *          {
+     *            "id": 20,
+     *            "text": "Какой распорядок работы приёмной комиссии?",
+     *            "keys": "распорядок работа комиссия банан"
+     *          },
+     *          {
+     *            "id": 21,
+     *            "text": "Какие сроки приема документов для поступления?",
+     *            "keys": "срок прием документ сдача поступление"
+     *          },
+     *          {
+     *            "id":22,
+     *            "text": "Где можно заполнить заявление о поступлении?",
+     *            "keys": "заявление поступление заполнить"
+     *          },
+     *          {
+     *            "id": 23,
+     *            "text":"По какому адресу находится приёмная комиссия?",
+     *            "keys":"адрес коммисия"
+     *          }
+     *        ],
+     *        "count":4
+     *     }
+     */
+    public function keys(Request $request) {
+
+        // Получаем все вопросы с ключевыми словами
+        $answers = Answer::whereNotNull('keys')->get();
+        // Подсчитываем количество таких вопросов
+        $count = Answer::whereNotNull('keys')->count();
+
+        return response()->json(['answers' => $answers, 'count' => $count], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+}
+
+------------
+File: botapi/app/Http/Controllers/Controller.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+}
+
+------------
+File: botapi/app/Http/Controllers/PhoneNumberController.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\PhoneNumber;
+use App\History;
+use App\Question;
+use App\Answer;
+
+class PhoneNumberController extends Controller
+{
+    /**
+     * @api {get} /phone/send Отправка телефона
+     * @apiName GetChat
+     * @apiGroup Chat
+     * @apiDescription Метод отправки телефона (и сохранение истории сессии)
+     *
+     * @apiParam {String} id Ключ сессии
+     * @apiParam {String} phone Номер телефона
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83",
+     *       "phone": "+79841609900"
+     *     }
+     *
+     * @apiSuccess {String} status Статус запроса
+     * @apiSuccessExample {json} Пример успешного запроса
+     *     {
+     *       "status": "ok"
+     *     }
+     * @apiSuccessExample {json} Пример неуспешного запроса
+     *     {
+     *       "status": "fail"
+     *     }
+     */
+    public function send(Request $request) {
+        // Получаем сессию из ранее уже вызванного посредника (в роутах)
+        $s = $request->get('session');
+        $phone = new PhoneNumber;
+        $phone->phone = $request->input('phone');
+        $phone->session_id = $s->id;
+        if (!$phone->phone) {
+            Log::warning('Method chat/phone, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+
+        $history = History::where('session_id', $s->id)->get();
+        $text = "";
+        foreach($history as &$element) {
+            $answer = Answer::where('id', $element->answer_id)->first();
+            $question = Question::where('id', $element->question_id)->first();
+            $text = $text . "[$element->created_at] Бот: $question->text\n";
+            if ($element->answer_id != null) {
+                $text = $text . "[$element->created_at] Пользователь: $answer->text\n";
+            }
+        }
+        $phone->history = $text;
+
+        $phone->save();
+        Log::error('ERR Called method not implemented yet.');
+        Log::info('Phone added ['.$s->id.']');
+
+        return response()->json(['status' => 'true'], 400, [], JSON_UNESCAPED_UNICODE);
+    }
+}
+
+------------
+File: botapi/app/Http/Controllers/SessionController.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use App\Session;
+use App\History;
+
+class SessionController extends Controller
+{
+    /**
+     * @api {get} /session/check Проверка сессии
+     * @apiName CheckSession
+     * @apiGroup Session
+     * @apiDescription Метод проверки существования и актуальности сессии
+     * 
+     * @apiParam {String} id Ключ сессии
+     * @apiParamExample {json} Пример запроса
+     *     {
+     *       "id": "0bcbdb27-a69f-4be3-b8c5-1ba7eb8a7d83"
+     *     }
+     * 
+     * @apiSuccess {String} status Состояние сессии
+     * @apiSuccessExample {json} Пример валидной сессии
+     *     {
+     *       "status": "valid"
+     *     }
+     * @apiSuccessExample {json} Пример невалидной сессии
+     *     {
+     *       "status": "invalid"
+     *     }
+     */
+    public function check(Request $request) {
+        // Получаем id сесии из запроса
+        $session_id = $request->input('id');
+        if (!$session_id) {
+            Log::warning('Method session/check, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'not enough parameters'], 400);
+        }
+        // Получаем экземпляр сессии из БД
+        $s = Session::where('session_id', $session_id)->first();
+        // Проверяем наличие сессии в БД и актуальность
+        if (!$s || !$s->valid()) return response()->json(['status' => 'invalid']);
+        // Если все хорошо, возвращаем valid
+        return response()->json(['status' => 'valid']);
+    }
+
+    /**
+     * @api {get} /session/register Создание сессии
+     * @apiName RegisterSession
+     * @apiGroup Session
+     * @apiDescription Метод создания сессии
+     * 
+     * @apiSuccess {String} id Уникальный ключ сессии
+     * @apiSuccessExample {json} Пример успешно созданной сессии
+     *     {
+     *       "id": "7e7c4509-2286-477c-b6e5-da078d842e48"
+     *     }
+     */
+    public function register() {
+        // Генерируем уникальный UUID
+        $session_id = (string) Str::uuid();
+        Log::debug('Generate session key ['.$session_id.']');
+
+        // Создаем экземпляр сессии
+        $session = new Session;
+        $session->session_id = $session_id;
+        
+        // Записываем сессию в БД
+        $session->save();
+        Log::debug('Save to DB for ['.$session_id.']');
+
+        // Создаем историю
+        $history = new History;
+        $history->session_id = $session->id;
+        // Указываем начальный вопрос
+        $history->question_id = 1;
+        // Сохраняем историю
+        $history->save();
+        Log::debug('Save history to DB for ['.$session_id.']');
+
+        Log::info('Registering session ['.$session_id.']');
+
+        // Возвращаем ID сессии после регистрации
+        return response()->json([
+            'id' => $session->session_id,
+        ]);
+    }
+}
+
+------------
+File: botapi/app/Http/Controllers/TestController.php 
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+
+use Illuminate\Http\Request;
+use Jurager\Morphy\Morphy;
+
+class TestController extends Controller
+{
+    // Проверочный метод
+    public function test_message(Request $request) {
+        $message = $request->input('msg');
+        $morphy = new Morphy('ru');
+        $message =  $morphy->getPseudoRoot('бегут');
+        //return $message;
+        return response()->json(['recieved' => $message, 'test' => 'true'], 200, [],  JSON_UNESCAPED_UNICODE);
+    }
+}
+
+------------
+File: botapi/app/Http/Kernel.php 
+
+
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * Глобальный стек HTTP посредников сервера
+     *
+     * Эти посредники будут запускаться для каждого запроса к серверу
+     *
+     * @var array
+     */
+    protected $middleware = [
+        //\App\Http\Middleware\TrustProxies::class,
+        //\App\Http\Middleware\CheckForMaintenanceMode::class,
+        //\Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        //\App\Http\Middleware\TrimStrings::class,
+        //\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * Группы посредников для роутов
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'api' => [
+            'throttle:200,1',
+            'bindings',
+        ],
+    ];
+
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array
+     */
+    protected $routeMiddleware = [
+        //'auth' => \App\Http\Middleware\Authenticate::class,
+        //'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        //'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        //'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        //'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        //'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        //'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'validsession' => \App\Http\Middleware\CheckSession::class,
+        'adminaccess' => \App\Http\Middleware\CheckAdmin::class,
+        //'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+
+    /**
+     * The priority-sorted list of middleware.
+     *
+     * This forces non-global middleware to always be in the given order.
+     *
+     * @var array
+     */
+    protected $middlewarePriority = [
+        //\Illuminate\Session\Middleware\StartSession::class,
+        //\Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        //\App\Http\Middleware\Authenticate::class,
+        \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        //\Illuminate\Session\Middleware\AuthenticateSession::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        //\Illuminate\Auth\Middleware\Authorize::class,
+    ];
+}
+
+------------
+File: botapi/app/Http/Middleware/CheckAdmin.php 
+
+
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use App\Admin;
+use Illuminate\Support\Facades\Log;
+
+class CheckAdmin
+{
+    /**
+     * Проверяем входящий запрос на наличие валидного ключа админа
+     */
+    public function handle($request, Closure $next)
+    {
+        // Получаем key из запроса
+        $key = $request->input('key');
+        if(!$key) {
+            Log::warning('Middleware check admin, not enough parameters. Where "key"?');
+            return response()->json(['error' => 'key required']);
+        }
+        // Получаем информацию о ключе из БД
+        $a = Admin::where('key', $key)->first();
+        // Проверяем наличие ключа в БД
+        if (!$a) {
+            Log::debug('Middleware check admin abort, ['.$key.'] is invalid.');
+            return response()->json(['error' => 'key not valid']);
+        }
+        // Если все хорошо, пропускаем и записываем ключ в запрос
+        $request->attributes->add(['admin' => $a]);
+        return $next($request);
+    }
+}
+
+------------
+File: botapi/app/Http/Middleware/CheckSession.php 
+
+
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use App\Session;
+use Illuminate\Support\Facades\Log;
+
+class CheckSession
+{
+    /**
+     * Проверяем входящий запрос на наличие валидной сессии
+     */
+    public function handle($request, Closure $next)
+    {
+        // Получаем id сесии из запроса
+        $session_id = $request->input('id');
+        if (!$session_id) {
+            Log::warning('Middleware check session, not enough parameters. Where "id"?');
+            return response()->json(['error' => 'session required']);
+        }
+        // Получаем экземпляр сессии из БД
+        $s = Session::where('session_id', $session_id)->first();
+        // Проверяем наличие сессии в БД и актуальность
+        if (!$s || !$s->valid()) {
+            Log::debug('Middleware check session abort, ['.$session_id.'] is invalid.');
+            return response()->json(['error' => 'session not valid']);
+        }
+        // Если все хорошо, пропускаем и записываем экземпляр сессии в запрос
+        $request->attributes->add(['session' => $s]);
+        return $next($request);
+    }
+}
+
+------------
+File: botapi/app/PhoneNumber.php 
+
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class PhoneNumber extends Model
+{
+    //
+}
+
+------------
+File: botapi/app/Providers/RouteServiceProvider.php 
+
+
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
+
+class RouteServiceProvider extends ServiceProvider
+{
+    /**
+     * This namespace is applied to your controller routes.
+     *
+     * In addition, it is set as the URL generator's root namespace.
+     *
+     * @var string
+     */
+    protected $namespace = 'App\Http\Controllers';
+
+    /**
+     * Define your route model bindings, pattern filters, etc.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+
+        parent::boot();
+    }
+
+    /**
+     * Define the routes for the application.
+     *
+     * @return void
+     */
+    public function map()
+    {
+        $this->mapApiRoutes();
+
+        //
+    }
+
+    /**
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapApiRoutes()
+    {
+        Route::prefix('api')
+             ->middleware('api')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/api.php'));
+    }
+}
+
+------------
+File: botapi/app/Question.php 
+
+
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+/*
+*   Вопрос (или конечный ответ, если нет привязанных ответов)
+*/
+class Question extends Model
+{
+    // Скрываем данные поля для вывода в JSON
+    protected $hidden = ['created_at', 'updated_at'];
+}
+
+------------
+File: botapi/app/Session.php 
+
+
+<?php
+
+namespace App;
+
+use DateTime;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+
+/*
+*   Сессия пользователя
+*/
+class Session extends Model
+{
+    // Название таблицы с сессиями
+    protected $table = 'sessions';
+    
+    // Проверка актуальности сессии
+    public function valid() {
+        // Получаем текущее время
+        $now = new DateTime('now');
+        // Смещаем время на 3 часа
+        $now->modify("-3 hour");
+        // Сравниваем смещенное время с датой создания сессии
+        $interval = date_diff($this->created_at, $now);
+        if (!$interval->invert) {
+            Log::debug('Check registered session status: ['.$this->session_id.'] is invalid.');
+            return false;
+        }
+        Log::debug('Check registered session status: ['.$this->session_id.'] is valid.');
+        return true;
+    }
+}
+
+------------
+File: botapi/routes/api.php 
+
+
+<?php
+
+use Illuminate\Http\Request;
+
+
+/* Методы для работы с сессией */
+
+// Проверка сессии
+Route::match(['get', 'post'], 'session/check', 'SessionController@check');
+// Создание сессии
+Route::match(['get', 'post'], 'session/register', 'SessionController@register');
+
+
+/* Методы для работы с чатом */
+
+// Получение диалога
+Route::match(['get', 'post'], 'chat/get', 'ChatController@get')->middleware('validsession');
+// Выбор ответа
+Route::match(['get', 'post'], 'chat/select', 'ChatController@select')->middleware('validsession');
+// Возврат на вопрос выше
+Route::match(['get', 'post'], 'chat/back', 'ChatController@back')->middleware('validsession');
+// История диалога сессии
+Route::match(['get', 'post'], 'chat/history', 'ChatController@history')->middleware('validsession');
+// Получение ключевых слов
+Route::match(['get', 'post'], 'chat/keys', 'ChatController@keys');
+// Получение номера телефона
+Route::match(['get', 'post'], 'chat/phone', 'PhoneNumberController@send')->middleware('validsession');
+
+
+/* Методы для управления */
+
+// Проверка ключа
+Route::match(['get', 'post'], 'admin/key/check', 'AdminController@key_check');
+// Получение информации о ключе
+Route::match(['get', 'post'], 'admin/key/info', 'AdminController@key_info')->middleware('adminaccess');
+// Получение списка всех ключей
+Route::match(['get', 'post'], 'admin/key/list', 'AdminController@key_list')->middleware('adminaccess');
+// Регистрация нового ключа
+Route::match(['get', 'post'], 'admin/key/create', 'AdminController@key_create')->middleware('adminaccess');
+// Удаление ключа
+Route::match(['get', 'post'], 'admin/key/remove', 'AdminController@key_remove')->middleware('adminaccess');
+// Получение базы вопросов-ответов в виде дерева
+Route::match(['get', 'post'], 'admin/chat/tree', 'AdminController@chat_tree')->middleware('adminaccess');
+// Получение базы вопросов
+Route::match(['get', 'post'], 'admin/chat/questions', 'AdminController@chat_questions')->middleware('adminaccess');
+// Редактирование вопроса
+Route::match(['get', 'post'], 'admin/chat/edit/question', 'AdminController@chat_question_edit')->middleware('adminaccess');
+// Добавление вопроса
+Route::match(['get', 'post'], 'admin/chat/add/question', 'AdminController@chat_question_add')->middleware('adminaccess');
+// Получение базы ответов
+Route::match(['get', 'post'], 'admin/chat/answers', 'AdminController@chat_answers')->middleware('adminaccess');
+// Редактирование ответа
+Route::match(['get', 'post'], 'admin/chat/edit/answer', 'AdminController@chat_answer_edit')->middleware('adminaccess');
+// Добавление ответа
+Route::match(['get', 'post'], 'admin/chat/add/answer', 'AdminController@chat_answer_add')->middleware('adminaccess');
+// Удаление вопроса
+Route::match(['get', 'post'], 'admin/chat/remove/question', 'AdminController@chat_question_remove')->middleware('adminaccess');
+// Удаление ответа
+Route::match(['get', 'post'], 'admin/chat/remove/answer', 'AdminController@chat_answer_remove')->middleware('adminaccess');
+// Получение списка номеров телефона
+Route::match(['get', 'post'], 'admin/phone/list', 'AdminController@phone_list')->middleware('adminaccess');
+// Удаление номера телефона
+Route::match(['get', 'post'], 'admin/phone/remove', 'AdminController@phone_remove')->middleware('adminaccess');
+// Удаление всех номеров телефона
+Route::match(['get', 'post'], 'admin/phone/remove/all', 'AdminController@phone_remove_all')->middleware('adminaccess');
+
+
+------------
+File: botapi/database/migrations/2019_11_04_074556_create_sessions_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateSessionsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            $table->bigIncrements('id');
+            $table->string('session_id')->unique();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('sessions');
+    }
+}
+
+------------
+File: botapi/database/migrations/2019_11_08_150742_create_questions_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateQuestionsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('questions', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            $table->bigIncrements('id');
+            $table->longText('text');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('questions');
+    }
+}
+
+------------
+File: botapi/database/migrations/2019_11_08_150745_create_answers_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateAnswersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('answers', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('question_id')->nullable();
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->longText('text');
+            $table->unsignedBigInteger('next_question_id')->nullable();
+            $table->foreign('next_question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->unsignedInteger('sort')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('answers');
+    }
+}
+
+------------
+File: botapi/database/migrations/2019_11_08_150753_create_histories_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateHistoriesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('histories', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('session_id');
+            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
+            $table->unsignedBigInteger('question_id');
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('histories');
+    }
+}
+
+------------
+File: botapi/database/migrations/2019_12_25_143230_add_histories_answer.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddHistoriesAnswer extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('histories', function (Blueprint $table) {
+            // Запись о выбранном вопросе пользователем
+            $table->unsignedBigInteger('answer_id')->nullable()->after('question_id');
+            $table->foreign('answer_id')->references('id')->on('answers')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('histories', function (Blueprint $table) {
+            $table->dropForeign(['answer_id']);
+            $table->dropColumn('answer_id');
+        });
+    }
+}
+
+------------
+File: botapi/database/migrations/2020_03_15_204825_add_keys_to_answers.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddKeysToAnswers extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('answers', function (Blueprint $table) {
+            // Ключевые слова для вопроса
+            $table->string('keys')->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('answers', function (Blueprint $table) {
+            $table->dropColumn('keys');
+        });
+    }
+}
+
+------------
+File: botapi/database/migrations/2020_04_11_180613_create_admin_keys_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateAdminKeysTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('admin_keys', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            $table->bigIncrements('id');
+            $table->string('key')->unique();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('admin_keys');
+    }
+}
+
+------------
+File: botapi/database/migrations/2021_01_13_181858_create_phone_numbers_table.php 
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePhoneNumbersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('phone_numbers', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('phone');
+            $table->mediumText('history')->nullable();
+            $table->unsignedBigInteger('session_id')->nullable();
+            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('set null');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('phone_number');
+    }
+}
