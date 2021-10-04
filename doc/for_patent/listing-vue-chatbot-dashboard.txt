@@ -1,0 +1,1171 @@
+------------
+File: phpadmin/api_gutter.php 
+
+
+<?php
+
+include 'config.php';
+
+if (isset($_POST['a'])) {
+  $method = $_POST['a'];
+} else if(isset($_GET['a'])) {
+  $method = $_GET['a'];
+} else {
+  $method = null;
+}
+
+// Проверка действительности ключа
+function keyCheck($key)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/key/check';
+  // Параметры передаваемые API
+  $data = array('key' => $key);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  // Читает содержимое файла в строку
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Вывод списока ключей
+function keyList()
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/key/list';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data),
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Удаление ключа
+function deleteKey($id)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/key/remove';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key'], 'key_id' => $id);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Добавление ключа
+function addKey()
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/key/create';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data),
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+  
+  return $result;
+}
+
+// Добавление ответа
+function addAnswer($question_id, $text, $keys)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/add/answer';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['text'] = $text;
+  if ($keys != "") {
+    $data['keys'] = $keys;
+  }
+  $data['question_id'] = $question_id;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Добавление вопроса
+function addQuestion($answer_id, $text)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/add/question';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['text'] = $text;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  $q = json_decode($result);
+  $qid = $q->{'question'}->{'id'};
+
+  if ($result != FALSE) {
+    // Адрес обращения к API
+    $url = $CONFIG['api_url'] . 'admin/chat/edit/answer';
+    // Параметры передаваемые API
+    $data = array('key' => $CONFIG['api_key']);
+    $data['id'] = $answer_id;
+    $data['next_question_id'] = $qid;
+
+    // Настройка http-запроса
+    $options = array(
+      'http' => array(
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST',
+        'content' => http_build_query($data)
+      )
+    );
+    // Создаёт контекст потока
+    $context  = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+  }
+
+  return $result;
+}
+
+// Изменение ответа
+function editAnswer($answer_id, $text, $keys)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/edit/answer';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['text'] = $text;
+  if ($keys != "") {
+    $data['keys'] = $keys;
+  } else {
+    $data['keys'] = "null";
+  }
+  $data['id'] = $answer_id;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Изменение вопроса
+function editQuestion($question_id, $text)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/edit/question';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['text'] = $text;
+  $data['id'] = $question_id;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Удаление ответа
+function deleteAnswer($answer_id)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/remove/answer';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['id'] = $answer_id;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Удаление вопроса
+function deleteQuestion($question_id)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/chat/remove/question';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+  $data['id'] = $question_id;
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Вывод списка оставленных телефонов и их данных
+function phoneList()
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/phone/list';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data),
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Удаление телефонов и их данных
+function deletePhone($id)
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/phone/remove';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key'], 'phone_id' => $id);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+// Удаление всех данных о телефонах
+function deleteAllPhones()
+{
+  global $CONFIG;
+  // Адрес обращения к API
+  $url = $CONFIG['api_url'] . 'admin/phone/remove/all';
+  // Параметры передаваемые API
+  $data = array('key' => $CONFIG['api_key']);
+
+  // Настройка http-запроса
+  $options = array(
+    'http' => array(
+      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method'  => 'POST',
+      'content' => http_build_query($data),
+    )
+  );
+  // Создаёт контекст потока
+  $context  = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+
+  return $result;
+}
+
+switch ($method) {
+  case 'addanswer':
+    addAnswer($_POST['question_id'], $_POST['text'], $_POST['keys']);
+    break;
+
+  case 'addquestion':
+    addQuestion($_POST['answer_id'], $_POST['text']);
+    break;
+
+  case 'editanswer':
+    editAnswer($_POST['answer_id'], $_POST['text'], $_POST['keys']);
+    break;
+
+  case 'editquestion':
+    editQuestion($_POST['question_id'], $_POST['text']);
+    break;
+
+  case 'deleteanswer':
+    deleteAnswer($_POST['id']);
+    break;
+
+  case 'deletequestion':
+    deleteQuestion($_POST['id']);
+    break;
+
+  case 'addkey':
+    addKey();
+    break;
+
+  case 'deletekey':
+    deleteKey($_GET['id']);
+    break;
+
+  case 'deletephone':
+    deletePhone($_POST['id']);
+    break;
+
+  case 'deleteallphones':
+    deleteAllPhones();
+    break;
+
+  case 'logout':
+    setcookie('api_key', '', time() - 3600);
+    header("Location: auth.php");
+    exit();
+    break;
+
+  case 'sort_alphabet':
+    setcookie('sort', 'alphabet', time() + 3600 * 24 * 120);
+    header("Location: index.php");
+    exit();
+    break;
+
+  case 'sort_time':
+    setcookie('sort', 'time', time() + 3600 * 24 * 120);
+    header("Location: index.php");
+    exit();
+    break;
+
+  default:
+    break;
+}
+
+------------
+File: phpadmin/auth.php 
+
+
+<?php
+
+include 'config.php';
+include 'api_gutter.php';
+
+if (isset($_COOKIE['api_key'])){
+  header("Location: index.php");
+  exit();
+}
+
+if (isset($_POST['key'])) {
+  $result = keyCheck($_POST['key']);
+  $q = json_decode($result);
+  $status = $q->{'status'};
+  if ($status == 'valid') {
+    setcookie('api_key', $_POST['key'], time()+3600*24*120);
+    header("Location: index.php");
+    exit();
+  }
+}
+
+?>
+
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+
+  <title>Chatbot admin</title>
+</head>
+
+<style>
+  html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #f5f5f5;
+  }
+
+  .form-sign {
+    width: 100%;
+    max-width: 530px;
+    padding: 15px;
+    margin: auto;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <form method="POST" class="form-sign">
+      <h1 class="h3 mb-3 fw-normal text-center">VVSU-Chatbot CP</h1>
+      <label class="mb-1">Admin key: </label>
+      <input name="key" type="text" class="form-control mb-3" placeholder="KEYCODE" required>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+    </form>
+  </div>
+</body>
+
+------------
+File: phpadmin/index.php 
+
+
+<?php
+
+if (!isset($_COOKIE['api_key'])) {
+  header("Location: auth.php");
+  exit();
+}
+
+include 'config.php';
+include 'api_gutter.php';
+
+$tree = file_get_contents($CONFIG['api_url'] . 'admin/chat/tree?key=' . $CONFIG['api_key']);
+$tree = json_decode($tree, true);
+
+function array_sort(&$data)
+{
+  if (!$data['answers']) return;
+  $ar = array();
+  $sorted_answers = array();
+  // Записываем в новый массив id и text
+  foreach ($data['answers'] as &$answer) {
+    if (isset($answer['question'])) {
+      array_sort($answer['question']);
+    }
+    $ar[] = mb_strtolower($answer['text']);
+  }
+  // Сортировка
+  asort($ar, SORT_STRING | SORT_FLAG_CASE);
+  foreach ($ar as $key => $value) {
+    $sorted_answers[] = $data['answers'][$key];
+  }
+  $data['answers'] = $sorted_answers;
+}
+
+function drawTree($data, $level)
+{
+  echo ('<div class="rounded"><div class="h6 mt-3">Q [' . $data['id'] . ']</div><div>' . $data['text'] . '</div></div> <br>');
+  echo ('<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addAnswerModal" data-id="' . $data['id'] . '"><i class="fa fa-plus-square" aria-hidden="true"></i> Добавить вариант</button>');
+  echo (' <a class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editQuestionModal" data-id="' . $data['id'] . '" data-text="' . htmlspecialchars($data['text']) . '"><i class="fa fa-pencil" aria-hidden="true"></i> Изменить</a>');
+  if ($data['id'] != 1) {
+    echo (' <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-id="' . $data['id'] . '" data-a="deletequestion"><i class="fa fa-trash" aria-hidden="true"></i> Удалить</a>');
+  }
+  if (!$data['answers']) return;
+  if ($level == 0) {
+    echo ('<ul id="treeUL">');
+  } else {
+    echo ('<ul class="nested">');
+  }
+  foreach ($data['answers'] as $answer) {
+    if ($level % 2) {
+      echo ('<li class="mt-3 border border-danger rounded p-2" style="background-color: #e3e3e3;">');
+    } else {
+      echo ('<li class="mt-3 border border-primary rounded p-2" style="background-color: #fff;">');
+    }
+    if (isset($answer['question']) && $answer['question']['count'] > 0) {
+      echo ('<span class="caret" data-id="' . $answer['id'] . '"></span>');
+    }
+    echo ('<div>A [' . $answer['id'] . ']</div><div>' . $answer['text'] . '</div> <br>');
+    echo ('<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editAnswerModal" data-id="' . $answer['id'] . '" data-text="' . htmlspecialchars($answer['text']) . '" data-keys="' . htmlspecialchars($answer['keys']) . '"><i class="fa fa-pencil" aria-hidden="true"></i> Изменить</button>');
+    echo (' <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-id="' . $answer['id'] . '" data-a="deleteanswer"><i class="fa fa-trash" aria-hidden="true"></i> Удалить</a>');
+    if (isset($answer['question'])) {
+      drawTree($answer['question'], $level + 1);
+    } else {
+      echo (' <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addQuestionModal" data-id="' . $answer['id'] . '"><i class="fa fa-plus-square" aria-hidden="true"></i> Добавить ответ</button>');
+    }
+    echo ('</li>');
+  }
+  echo ('</ul>');
+}
+
+?>
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/fork-awesome.min.css">
+
+  <title>Chatbot admin</title>
+</head>
+
+<style>
+  ul,
+  #treeUL {
+    list-style-type: none;
+  }
+
+  #treeUL {
+    margin: 0;
+    padding: 0;
+  }
+
+  .caret {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .caret::before {
+    content: "\25B6";
+    color: black;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .caret-down::before {
+    transform: rotate(90deg);
+  }
+
+  .nested {
+    display: none;
+  }
+
+  .active {
+    display: block;
+  }
+</style>
+
+<body>
+
+  <?php
+  $page = "main";
+  include "menu.php";
+  ?>
+
+  <div class="container my-3">
+    <?php if (isset($_COOKIE['sort']) && $_COOKIE['sort'] == 'alphabet') {
+      echo ('<a type="button" href="?a=sort_time" class="btn pull-right"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> Сортировать по времени</a>');
+      array_sort($tree['tree']);
+    } else {
+      echo ('<a type="button" href="?a=sort_alphabet" class="btn pull-right"><i class="fa fa-sort-alpha-asc" aria-hidden="true"></i> Сортировать по алфавиту</a>');
+    }
+    ?>
+    <h1 class="mb-4">Дерево диалога</h1>
+    <?php
+    drawTree($tree['tree'], 0); ?>
+  </div>
+
+  <!-- Modal Add Answers-->
+  <div class="modal fade" id="addAnswerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <form method="post" action="/">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Добавление варианта ответа</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>Текст ответа: </div>
+            <input type="hidden" name="a" value="addanswer">
+            <input class="data_id" type="hidden" name="question_id" value="addanswer">
+            <textarea style="height: 250px;" name="text" class="form-control" aria-label="With textarea" placeholder="Введите текст" id="addanstext"></textarea>
+            <div class="col-md">
+              <div class="mt-3">Ключевые слова: </div>
+              <div class="form-floating">
+                <input name="keys" class="form-control" id="floatingInputGrid" placeholder="KEYWORDS" value="">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Edit Answers-->
+  <div class="modal fade" id="editAnswerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <form method="post" action="/">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Редактирование варианта ответа</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>Текст ответа: </div>
+            <input type="hidden" name="a" value="editanswer">
+            <input class="data_id" type="hidden" name="answer_id" value="">
+            <textarea style="height: 250px;" name="text" class="form-control data_text" aria-label="With textarea" id="editanstext"></textarea>
+            <div class="col-md">
+              <div class="mt-3">Ключевые слова: </div>
+              <div class="form-floating">
+                <input name="keys" class="form-control data_keys" id="floatingInputGrid" placeholder="KEYWORDS">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Edit Question-->
+  <div class="modal fade" id="editQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <form method="post" action="/">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Редактирование вопроса</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>Текст вопроса: </div>
+            <input type="hidden" name="a" value="editquestion">
+            <input class="data_id" type="hidden" name="question_id" value="">
+            <textarea style="height: 250px;" name="text" class="form-control data_text" aria-label="With textarea" id="editquetext"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Add Question-->
+  <div class="modal fade" id="addQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <form method="post" action="/">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Добавление ответа</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label>Текст ответа: </label>
+            <input type="hidden" name="a" value="addquestion">
+            <input class="data_id" type="hidden" name="answer_id" value="">
+            <textarea style="height: 250px;" name="text" class="form-control data_text" aria-label="With textarea" placeholder="Введите текст" id="addquetext"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal del -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <form method="post" action="/">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Удаление</h5>
+            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Вы уверены что хотите удалить этот вопрос?</p>
+            <input class="data_a" type="hidden" name="a" value="">
+            <input class="data_id" type="hidden" name="id" value="">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-danger">Удалить</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+
+  <script>
+    var toggler = document.getElementsByClassName("caret");
+    var i;
+
+    for (i = 0; i < toggler.length; i++) {
+      var t = toggler[i];
+      var saveState = localStorage.getItem("cpchatbot-caret-" + t.getAttribute('data-id'));
+
+      if (saveState && saveState == "true") {
+        t.parentElement.querySelector(".nested").classList.toggle("active");
+        t.classList.toggle("caret-down");
+      }
+
+      t.addEventListener("click", function() {
+          if ($(this).hasClass("caret-down")) {
+            // Find lists
+            $(this.parentElement).children(".nested").children().each(function(i, elem) {
+              // Find opened childrens
+              var caret = $(elem).children(".caret-down").each(function(i, elem) {
+                // Send event click
+                elem.click();
+              });
+            });
+
+            this.parentElement.querySelector(".nested").classList.toggle("active");
+            this.classList.toggle("caret-down");
+            localStorage.setItem("cpchatbot-caret-" + this.getAttribute('data-id'), this.classList.contains("caret-down"));
+          } else {
+            this.parentElement.querySelector(".nested").classList.toggle("active");
+            this.classList.toggle("caret-down");
+            localStorage.setItem("cpchatbot-caret-" + this.getAttribute('data-id'), this.classList.contains("caret-down"));
+          }
+      });
+    }
+
+      // For add answer
+      var addAnswerModal = document.getElementById('addAnswerModal')
+      addAnswerModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+
+        var modalId = addAnswerModal.querySelector('.data_id')
+
+        modalId.value = id
+
+        setTimeout(function() {
+          document.getElementById("addanstext").focus();
+        }, 500);
+      })
+
+      // For add question
+      var addQuestionModal = document.getElementById('addQuestionModal')
+      addQuestionModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+
+        var modalId = addQuestionModal.querySelector('.data_id')
+
+        modalId.value = id
+
+        setTimeout(function() {
+          document.getElementById("addquetext").focus();
+        }, 500);
+      })
+
+      // For edit answer
+      var editAnswerModal = document.getElementById('editAnswerModal')
+      editAnswerModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+        var text = button.getAttribute('data-text')
+        var keys = button.getAttribute('data-keys')
+
+        var modalId = editAnswerModal.querySelector('.data_id')
+        var modalText = editAnswerModal.querySelector('.data_text')
+        var modalKeys = editAnswerModal.querySelector('.data_keys')
+
+        modalId.value = id
+        modalText.value = text
+        modalKeys.value = keys
+
+        setTimeout(function() {
+          document.getElementById("editanstext").focus();
+        }, 500);
+      })
+
+      // For edit question
+      var editQuestionModal = document.getElementById('editQuestionModal')
+      editQuestionModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+        var text = button.getAttribute('data-text')
+
+        var modalId = editQuestionModal.querySelector('.data_id')
+        var modalText = editQuestionModal.querySelector('.data_text')
+
+        modalId.value = id
+        modalText.value = text
+
+
+        setTimeout(function() {
+          document.getElementById("editquetext").focus();
+        }, 500);
+      })
+
+      // For delete answer/question
+      var deleteModal = document.getElementById('deleteModal')
+      deleteModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+        var method = button.getAttribute('data-a')
+
+        var modalId = deleteModal.querySelector('.data_id')
+        var modalMethod = deleteModal.querySelector('.data_a')
+
+        modalId.value = id
+        modalMethod.value = method
+      })
+
+      // Save scroll position
+      $(document).ready(function() {
+
+        if (localStorage.getItem("cpchatbot-quote-scroll") != null) {
+          $(window).scrollTop(localStorage.getItem("cpchatbot-quote-scroll"));
+        }
+
+        $(window).on("scroll", function() {
+          localStorage.setItem("cpchatbot-quote-scroll", $(window).scrollTop());
+        });
+
+      });
+  </script>
+</body>
+
+</html>
+
+------------
+File: phpadmin/keys.php 
+
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fork-awesome.min.css">
+
+    <title>Chatbot admin</title>
+</head>
+
+<style>
+    ul,
+    #treeUL {
+        list-style-type: none;
+    }
+
+    #treeUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    .caret {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .caret::before {
+        content: "\25B6";
+        color: black;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    .nested {
+        display: none;
+    }
+
+    .active {
+        display: block;
+    }
+</style>
+
+<body>
+
+    <?php
+    include "api_gutter.php";
+    include "config.php";
+    $page = "keys";
+    include "menu.php";
+    if (isset($CONFIG['api_key'])) {
+        $keys = keyList();
+        $keys = json_decode($keys, true);
+    }
+    echo ('<br>');
+    echo ('<div class="container">');
+    echo ('<table class="table table-hover table-striped align-middle">
+            <thead class="table">
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">key</th>
+                    <th scope="col">action</th>
+                </tr>
+            </thead>
+         <tbody>');
+    foreach ($keys['keys'] as $value) {
+        echo ('<tr>
+                <th scope="row">' . $value['id'] . '</th>
+                <td>' . $value['key'] . '</td>');
+        if ($value['key'] != $CONFIG['api_key']) {
+            echo ('<td><a class="btn btn-danger btn-sm" href="keys.php?a=deletekey&id=' . $value['id'] . '"><i class="fa fa-trash" aria-hidden="true"></i> Удалить</a></td>
+            </tr>');
+        } else {
+            echo ('<td><button disabled class="btn btn-danger btn-sm" href="keys.php?a=' . $value['id'] . '"><i class="fa fa-trash" aria-hidden="true"></i> Удалить</button></td>
+            </tr>');
+        }
+    }
+    echo ('</tbody>
+    <caption><a class="btn btn-success btn-sm" href="keys.php?a=addkey"><i class="fa fa-plus-square" aria-hidden="true"></i> Добавить ключ</a></caption>
+    </table>');
+    echo ('</div>');
+
+    ?>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+
+</body>
+
+</html>
+------------
+File: phpadmin/menu.php 
+
+
+ <nav class="navbar navbar-expand navbar-dark bg-dark">
+     <div class="container container-fluid">
+         <a class="navbar-brand">VVSU-Chatbot CP</a>
+         <div class="collapse navbar-collapse" id="navbarNav">
+             <div class="collapse navbar-collapse" id="navbarNav">
+                 <ul class="navbar-nav">
+                     <li class="nav-item">
+                         <a class="nav-link <?php if ($page == "main") echo "active" ?>" href="index.php"><i class="fa fa-cubes" aria-hidden="true"></i> Дерево диалога</a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?php if ($page == "keys") echo "active" ?>" href="keys.php"><i class="fa fa-key-modern" aria-hidden="true"></i> Ключи</a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?php if ($page == "phones") echo "active" ?>" href="phones.php"><i class="fa fa-phone" aria-hidden="true"></i> Телефоны</a>
+                     </li>
+                 </ul>
+             </div>
+         </div>
+         <form method="post" action="/">
+             <input type="hidden" name="a" value="logout">
+             <button type="submit" href="?a=logout" class="btn btn btn-secondary">Выход</button>
+         </form>
+     </div>
+ </nav>
+------------
+File: phpadmin/phones.php 
+
+
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fork-awesome.min.css">
+
+    <title>Chatbot admin</title>
+</head>
+
+<style>
+    ul,
+    #treeUL {
+        list-style-type: none;
+    }
+
+    #treeUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    .caret {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .caret::before {
+        content: "\25B6";
+        color: black;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    .nested {
+        display: none;
+    }
+
+    .active {
+        display: block;
+    }
+</style>
+
+<body>
+    <?php
+    $page = "phones";
+    include "menu.php";
+    include "api_gutter.php";
+    if (isset($CONFIG['api_key'])) {
+        $phones = phoneList();
+        $phones = json_decode($phones, true);
+    }
+    echo ('<br>');
+    echo ('<div class="container">');
+    echo ('<table class="table table-hover table-striped table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Номер телефона</th>
+                    <th scope="col">История</th>
+                    <th scope="col">Дата</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>');
+    foreach ($phones['phones'] as $key => $value) {
+        echo ('        <tr>
+            <th scope ="row">' . $key . '</th>
+            <td>' . $value['phone'] . '</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#ModalHistory' . $value['id'] . '"><i class="fa fa-history" aria-hidden="true"></i> Посмотреть историю</button>
+
+                <div class="modal fade" id="ModalHistory' . $value['id'] . '" role="dialog" aria-modal="true" role="dialog" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">История ' . $value['phone'] . '</h5>
+                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                    <textarea style="height: 250px;" name="text" class="form-control" readonly>История:
+' . $value['history'] . '
+                                    </textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </td>
+            <td>' . $value['created_at'] . '</td>
+            <th><form method="post" action="phones.php">
+                    <input class="data_a" type="hidden" name="a" value="deletephone">
+                    <input class="phone_id" type="hidden" name="id" value="' . $value['id'] . '">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash" aria-hidden="true"></i> Удалить</button>
+                </form>
+            </th>
+        </tr>');
+    }
+    echo ('</tbody>
+    <caption>
+        <form method="post" action="phones.php">
+            <input class="data_a" type="hidden" name="a" value="deleteallphones">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash" aria-hidden="true"></i> Удалить все данные о телефонах</button>
+        </form>
+    </caption>
+            </table>');
+    echo ('</div>');
+
+    ?>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+
+</body>
+
+</html>
